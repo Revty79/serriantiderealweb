@@ -44,4 +44,4 @@ const allTabs: DesignTab[] = [
   {id:"preview",label:"Preview",note:"The old workspace renders the complete Item preview here."}
 ];
 const tabs = allTabs.filter((tab) => tab.id !== "armor");
-export default function InventoryPage(){return <DesignWorkspaceShell pageClass="items-page" workspaceClass="items-workspace" brandClass="item-brand" breadcrumb="THE HEAVENS / INVENTORY" title="Inventory" libraryTitle="Inventory Library" newLabel="New Item" searchPlaceholder="Name or canonical ID" libraryFilters={[{label:"Record Type",options:[]},{label:"Category",options:[]},{label:"Tag",options:[]}]} countLabel="records" tabs={tabs}/>;}
+export default function InventoryPage(){return <DesignWorkspaceShell pageClass="items-page" workspaceClass="items-workspace" brandClass="item-brand" breadcrumb="THE HEAVENS / INVENTORY" title="Inventory" libraryTitle="Inventory Library" newLabel="New Item" searchPlaceholder="Name or canonical ID" libraryFilters={[{label:"Record Type",options:[]},{label:"Category",options:[]},{label:"Tag",options:[]}]} countLabel="records" tabs={tabs} storageKey="serrian-tide:prototype:inventory:v1"/>;}
