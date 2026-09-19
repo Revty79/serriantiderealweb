@@ -36,10 +36,10 @@ function SectionHeading({eyebrow,title,detail}:{eyebrow:string;title:string;deta
   return <header className="character-section-heading"><div><p>{eyebrow}</p><h2 className="font-sans">{title}</h2></div>{detail?<span>{detail}</span>:null}</header>;
 }
 
-export function LocalCharacterEditor({characterId,campaignId}:{characterId:number|null;campaignId:number|null}) {
+export function LocalCharacterEditor({characterId,campaignId,playerUserId}:{characterId:number|null;campaignId:number|null;playerUserId?:string|null}) {
   const stored=useMemo(()=>characterId?readCharacters().find((row)=>row.id===characterId)??null:null,[characterId]);
   const initialCampaignId=stored?.campaignId ?? campaignId ?? readCampaigns().find((row)=>!row.archivedAt)?.id ?? 0;
-  const [draft,setDraft]=useState<LocalCharacter>(()=>stored ?? newCharacter(initialCampaignId));
+  const [draft,setDraft]=useState<LocalCharacter>(()=>stored ?? { ...newCharacter(initialCampaignId), playerUserId: playerUserId || "prototype-admin" });
   const [tab,setTab]=useState<Tab>("identity");
   const [dirty,setDirty]=useState(false);
   const [feedback,setFeedback]=useState("");
