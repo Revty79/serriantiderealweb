@@ -1,79 +1,50 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo,useState } from "react";
+import { readCampaigns } from "@/lib/local-character-store";
 import "./towns.css";
 import "../design-mode.css";
 
-export default function TownsPage() {
-  return <main className="towns-page">
-    <header className="towns-header">
-      <Link href="/heavens" className="font-portcullion towns-logo">Serrian<br />Tide</Link>
-      <div><p>THE HEAVENS / TOWN BUILDER</p><h1 className="font-sans">Campaign Towns</h1><span>Organize existing Shops and NPCs with Town-owned descriptive Places.</span></div>
-      <nav><Link href="/heavens">← The Heavens</Link></nav>
-    </header>
+const KEY="serrian-tide:prototype:towns:v1";
+const SHOP_KEY="serrian-tide:prototype:shops:v1";
+const NPC_KEY="serrian-tide:prototype:npcs:v1";
 
-    <p className="towns-scope">DESIGN MODE · All Town authoring fields are visible. Nothing saves yet.</p>
+type TownPlace={id:number;name:string;category:string;description:string;locationNotes:string;godNotes:string;archivedAt:string|null};
+type TownNpc={npcId:number;name:string;relationship:string;note:string};
+type Town={id:number;campaignId:number;name:string;category:string;overview:string;locationNotes:string;godNotes:string;shopIds:number[];npcs:TownNpc[];places:TownPlace[];archivedAt:string|null;archiveReason:string};
+type ShopSummary={id:number;campaignId:number;name:string;category:string;archivedAt:string|null};
+type NpcSummary={id:number;campaignId:number;name:string;roleLabel:string;archivedAt:string|null};
+function arr<T>(key:string):T[]{if(typeof window==="undefined")return[];try{const p=JSON.parse(localStorage.getItem(key)??"[]");return Array.isArray(p)?p:[]}catch{return[]}}
+function read():Town[]{return arr<Town>(KEY)} function write(rows:Town[]){localStorage.setItem(KEY,JSON.stringify(rows))}
+function blank(campaignId=0):Town{return{id:0,campaignId,name:"",category:"",overview:"",locationNotes:"",godNotes:"",shopIds:[],npcs:[],places:[],archivedAt:null,archiveReason:""}}
 
-    <section className="towns-context">
-      <div><p>Campaign scope</p><h2>Design Campaign</h2><span>Results never cross the selected Campaign.</span></div>
-      <label className="towns-field"><span>Campaign</span><select><option>Design Campaign</option></select></label>
-      <button type="button">New Town</button>
-    </section>
-
-    <div className="towns-layout">
-      <aside className="towns-library">
-        <header><div><p>Campaign library</p><h2>Towns</h2></div><span>1 shown</span></header>
-        <div className="towns-segmented"><button aria-pressed="true">Active</button><button>Archived</button></div>
-        <label className="towns-field"><span>Search Towns</span><input type="search" placeholder="Name, category, overview, location" /></label>
-        <div className="towns-index"><button className="is-selected"><strong>New Town Draft</strong><span>Unconfigured</span><small>0 Shops · 0 NPCs · 0 Places</small></button></div>
-      </aside>
-
-      <section className="towns-editor">
-        <header className="towns-editor__header">
-          <div><p>NEW TOWN DRAFT · DESIGN CAMPAIGN</p><h2>New Town Draft</h2><span>Design mode · local only</span></div>
-          <div className="towns-actions"><button disabled>Save Town</button><button disabled>Archive / Delete</button></div>
-        </header>
-
-        <section className="towns-panel towns-core">
-          <header><div><p>Town record</p><h3>Identity &amp; notes</h3></div></header>
-          <div className="towns-grid two">
-            <label className="towns-field"><span>Name</span><input /></label>
-            <label className="towns-field"><span>Type / category</span><input /></label>
-            <label className="towns-field is-wide"><span>Overview</span><textarea rows={4} /></label>
-            <label className="towns-field"><span>Location notes</span><textarea rows={3} /></label>
-            <label className="towns-field"><span>G.O.D. notes</span><textarea rows={3} /></label>
-          </div>
-        </section>
-
-        <section className="towns-panel">
-          <header><div><p>Existing Campaign records</p><h3>Shops</h3><span>One Town per Shop; Shop staff, offerings, balances, and state remain unchanged.</span></div><strong>0 attached</strong></header>
-          <label className="towns-field"><span>Search Shops</span><input type="search" /></label>
-          <div className="towns-add-row">
-            <label className="towns-field"><span>Available Campaign Shop</span><select><option>Choose a Shop</option></select></label>
-            <button disabled>Attach Shop</button>
-          </div>
-        </section>
-
-        <section className="towns-panel">
-          <header><div><p>Campaign characters</p><h3>NPCs</h3><span>Direct Town associations and staff at active attached Shops appear once per NPC.</span></div><strong>0 attached</strong></header>
-          <label className="towns-field"><span>Search NPCs</span><input type="search" /></label>
-          <div className="towns-grid two">
-            <label className="towns-field"><span>Available Campaign NPC</span><select><option>Choose an NPC</option></select></label>
-            <label className="towns-field"><span>Town relationship</span><input placeholder="Mayor, resident, guide…" /></label>
-            <label className="towns-field is-wide"><span>Town note</span><textarea rows={2} /></label>
-          </div>
-        </section>
-
-        <section className="towns-panel">
-          <header><div><p>Town-owned descriptions</p><h3>Places</h3><span>Places describe the Town; they do not create runtime mechanics.</span></div><strong>0 places</strong></header>
-          <div className="towns-grid two">
-            <label className="towns-field"><span>Place name</span><input /></label>
-            <label className="towns-field"><span>Type / category</span><input /></label>
-            <label className="towns-field is-wide"><span>Description</span><textarea rows={3} /></label>
-            <label className="towns-field"><span>Location notes</span><textarea rows={2} /></label>
-            <label className="towns-field"><span>G.O.D. notes</span><textarea rows={2} /></label>
-            <label className="towns-field is-wide"><span>Search Places</span><input type="search" /></label>
-          </div>
-        </section>
-      </section>
-    </div>
-  </main>;
+export default function TownsPage(){
+ const campaigns=useMemo(()=>readCampaigns().filter(c=>!c.archivedAt),[]);
+ const [campaignId,setCampaignId]=useState(campaigns[0]?.id??0);const [status,setStatus]=useState<"active"|"archived">("active");const [version,setVersion]=useState(0);const [search,setSearch]=useState("");const [draft,setDraft]=useState<Town>(()=>blank(campaigns[0]?.id??0));const [dirty,setDirty]=useState(false);
+ const shops=useMemo(()=>arr<ShopSummary>(SHOP_KEY).filter(s=>s.campaignId===campaignId&&!s.archivedAt),[campaignId,version]);
+ const npcs=useMemo(()=>arr<NpcSummary>(NPC_KEY).filter(n=>n.campaignId===campaignId&&!n.archivedAt),[campaignId,version]);
+ const towns=useMemo(()=>{void version;const q=search.trim().toLowerCase();return read().filter(t=>t.campaignId===campaignId&&Boolean(t.archivedAt)===(status==="archived")).filter(t=>!q||[t.name,t.category,t.overview,t.locationNotes].some(v=>v.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name))},[campaignId,status,search,version]);
+ function change(update:Partial<Town>){setDraft(d=>({...d,...update}));setDirty(true)}
+ function fresh(){if(dirty&&!confirm("Discard unsaved Town changes?"))return;setDraft(blank(campaignId));setDirty(false)}
+ function open(id:number){if(dirty&&!confirm("Discard unsaved Town changes?"))return;const row=read().find(t=>t.id===id);if(row){setDraft(row);setDirty(false)}}
+ function save(){if(!draft.name.trim()||!draft.campaignId)return;const rows=read();let next:Town;if(draft.id){const i=rows.findIndex(t=>t.id===draft.id);if(i<0)return;next={...draft};rows[i]=next}else{const id=rows.reduce((m,t)=>Math.max(m,t.id),0)+1;next={...draft,id};rows.push(next)}write(rows);setDraft(next);setDirty(false);setVersion(v=>v+1)}
+ function archive(){if(!draft.id)return;const rows=read();const i=rows.findIndex(t=>t.id===draft.id);if(i<0)return;const next={...draft,archivedAt:new Date().toISOString(),archiveReason:prompt("Archive reason (optional):")??""};rows[i]=next;write(rows);setDraft(next);setDirty(false);setVersion(v=>v+1)}
+ function restore(){if(!draft.id)return;const rows=read();const i=rows.findIndex(t=>t.id===draft.id);if(i<0)return;const next={...draft,archivedAt:null,archiveReason:""};rows[i]=next;write(rows);setDraft(next);setDirty(false);setVersion(v=>v+1)}
+ function remove(){if(!draft.id||prompt("Type "+draft.name+" to delete this local Town:")!==draft.name)return;write(read().filter(t=>t.id!==draft.id));setDraft(blank(campaignId));setDirty(false);setVersion(v=>v+1)}
+ return <main className="towns-page">
+  <header className="towns-header"><Link href="/heavens" className="font-portcullion towns-logo">Serrian<br/>Tide</Link><div><p>THE HEAVENS / TOWN BUILDER</p><h1>Campaign Towns</h1><span>Local prototype · organize saved Shops, NPCs, and Town-owned Places.</span></div><nav><Link href="/heavens">← The Heavens</Link></nav></header>
+  <p className="towns-scope">Campaign-scoped local prototype records. Nothing touches PostgreSQL.</p>
+  <section className="towns-context"><div><p>Campaign scope</p><h2>{campaigns.find(c=>c.id===campaignId)?.name??"Choose a Campaign"}</h2><span>Results never cross the selected Campaign.</span></div><label className="towns-field"><span>Campaign</span><select value={campaignId} onChange={e=>{setCampaignId(Number(e.target.value));setDraft(blank(Number(e.target.value)));setDirty(false)}}><option value={0}>Choose a Campaign</option>{campaigns.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label><button disabled={!campaignId} onClick={fresh}>New Town</button></section>
+  <div className="towns-layout">
+   <aside className="towns-library"><header><div><p>Campaign library</p><h2>Towns</h2></div><span>{towns.length} shown</span></header><div className="towns-segmented"><button aria-pressed={status==="active"} onClick={()=>setStatus("active")}>Active</button><button aria-pressed={status==="archived"} onClick={()=>setStatus("archived")}>Archived</button></div><label className="towns-field"><span>Search Towns</span><input value={search} onChange={e=>setSearch(e.target.value)}/></label><div className="towns-index">{towns.map(t=><button key={t.id} className={draft.id===t.id?"is-selected":""} onClick={()=>open(t.id)}><strong>{t.name}</strong><span>{t.category}</span><small>{t.shopIds.length} Shops · {t.npcs.length} NPCs · {t.places.length} Places</small></button>)}</div>{!towns.length?<p className="towns-empty">No {status} Towns.</p>:null}</aside>
+   <section className="towns-editor">
+    <header className="towns-editor__header"><div><p>{draft.category||"Town"} · local prototype</p><h2>{draft.name||"New Town Draft"}</h2><span>{draft.archivedAt?"Archived":dirty?"Unsaved changes":draft.id?"Saved locally":"Not yet persisted"}</span></div><div className="towns-actions"><button disabled={Boolean(draft.archivedAt)} onClick={save}>Save Town</button>{draft.id?(draft.archivedAt?<button onClick={restore}>Restore</button>:<button disabled={dirty} onClick={archive}>Archive</button>):null}{draft.id?<button className="is-danger" disabled={dirty} onClick={remove}>Delete</button>:null}</div></header>
+    <section className="towns-panel towns-core"><header><div><p>Town record</p><h3>Identity & notes</h3></div></header><div className="towns-grid two"><label className="towns-field"><span>Name</span><input value={draft.name} onChange={e=>change({name:e.target.value})}/></label><label className="towns-field"><span>Type / category</span><input value={draft.category} onChange={e=>change({category:e.target.value})}/></label><label className="towns-field is-wide"><span>Overview</span><textarea rows={4} value={draft.overview} onChange={e=>change({overview:e.target.value})}/></label><label className="towns-field"><span>Location notes</span><textarea rows={3} value={draft.locationNotes} onChange={e=>change({locationNotes:e.target.value})}/></label><label className="towns-field"><span>G.O.D. notes</span><textarea rows={3} value={draft.godNotes} onChange={e=>change({godNotes:e.target.value})}/></label></div></section>
+    <section className="towns-panel"><header><div><p>Existing Campaign records</p><h3>Shops</h3><span>One Town per Shop in the final model; local prototype lets us inspect the relationship.</span></div><strong>{draft.shopIds.length} attached</strong></header><div className="towns-card-list">{shops.map(s=><label key={s.id} className="towns-card"><input type="checkbox" checked={draft.shopIds.includes(s.id)} onChange={e=>change({shopIds:e.target.checked?[...draft.shopIds,s.id]:draft.shopIds.filter(id=>id!==s.id)})}/><div className="towns-card__identity"><p>{s.category}</p><h4>{s.name}</h4></div></label>)}</div>{!shops.length?<p className="towns-empty">No local Shops exist for this Campaign yet.</p>:null}</section>
+    <section className="towns-panel"><header><div><p>Campaign characters</p><h3>NPCs</h3><span>Direct Town associations.</span></div><strong>{draft.npcs.length} attached</strong></header><div className="towns-card-list">{npcs.map(n=>{const linked=draft.npcs.find(x=>x.npcId===n.id);return <article className="towns-card" key={n.id}><div className="towns-card__identity"><p>{n.roleLabel}</p><h4>{n.name}</h4></div>{linked?<div className="towns-grid two"><label className="towns-field"><span>Town relationship</span><input value={linked.relationship} onChange={e=>change({npcs:draft.npcs.map(x=>x.npcId===n.id?{...x,relationship:e.target.value}:x)})}/></label><label className="towns-field"><span>Town note</span><input value={linked.note} onChange={e=>change({npcs:draft.npcs.map(x=>x.npcId===n.id?{...x,note:e.target.value}:x)})}/></label><button onClick={()=>change({npcs:draft.npcs.filter(x=>x.npcId!==n.id)})}>Detach</button></div>:<button onClick={()=>change({npcs:[...draft.npcs,{npcId:n.id,name:n.name,relationship:"",note:""}]})}>Attach NPC</button>}</article>})}</div>{!npcs.length?<p className="towns-empty">No local NPCs exist for this Campaign yet.</p>:null}</section>
+    <section className="towns-panel"><header><div><p>Town-owned descriptions</p><h3>Places</h3><span>Places describe the Town; they do not create runtime mechanics.</span></div><button onClick={()=>change({places:[...draft.places,{id:Date.now(),name:"",category:"",description:"",locationNotes:"",godNotes:"",archivedAt:null}]})}>New Place</button></header><div className="towns-card-list">{draft.places.map((p,i)=><article className="towns-place" key={p.id}><header><div><p>{p.category||"Uncategorized"}</p><h4>{p.name||"New Place"}</h4></div></header><div className="towns-grid two"><label className="towns-field"><span>Place name</span><input value={p.name} onChange={e=>change({places:draft.places.map((x,j)=>j===i?{...x,name:e.target.value}:x)})}/></label><label className="towns-field"><span>Type / category</span><input value={p.category} onChange={e=>change({places:draft.places.map((x,j)=>j===i?{...x,category:e.target.value}:x)})}/></label><label className="towns-field is-wide"><span>Description</span><textarea rows={3} value={p.description} onChange={e=>change({places:draft.places.map((x,j)=>j===i?{...x,description:e.target.value}:x)})}/></label><label className="towns-field"><span>Location notes</span><textarea rows={2} value={p.locationNotes} onChange={e=>change({places:draft.places.map((x,j)=>j===i?{...x,locationNotes:e.target.value}:x)})}/></label><label className="towns-field"><span>G.O.D. notes</span><textarea rows={2} value={p.godNotes} onChange={e=>change({places:draft.places.map((x,j)=>j===i?{...x,godNotes:e.target.value}:x)})}/></label></div><div className="towns-actions"><button className="is-danger" onClick={()=>change({places:draft.places.filter((_,j)=>j!==i)})}>Remove Place</button></div></article>)}</div></section>
+   </section>
+  </div>
+ </main>;
 }
