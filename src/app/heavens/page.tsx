@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeavensLocalCampaignControl } from "./heavens-local-campaign-control";
 
 const coreTools = [
   { title: "RACES", subtitle: "Peoples", description: "Create and manage playable Races, attribute caps, movement, quirks, and racial Skills.", area: "races" },
@@ -48,38 +49,7 @@ export default function HeavensPage() {
             </p>
           </div>
 
-          <div className="mt-3">
-            <ControlRow label="Campaign">
-              <select disabled className="h-11 w-full rounded-xl border border-white/15 bg-black/50 px-4 text-sm text-slate-300 outline-none backdrop-blur-sm disabled:opacity-70">
-                <option>No Campaigns Yet</option>
-              </select>
-              <div className="flex flex-wrap gap-2 lg:justify-end">
-                <button disabled className="min-h-10 rounded-full border border-white/15 bg-black/20 px-4 py-2.5 text-sm text-slate-300 opacity-40">Campaign Information</button>
-                <Link href="/heavens/campaigns" className="min-h-10 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2.5 text-sm text-amber-100/80">Edit Campaign</Link>
-                <Link href="/heavens/campaigns" className="min-h-10 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2.5 text-sm text-amber-100/80">Create Campaign</Link>
-              </div>
-            </ControlRow>
-
-            <ControlRow label="Player">
-              <select disabled className="h-11 w-full rounded-xl border border-white/15 bg-black/50 px-4 text-sm text-slate-300 outline-none backdrop-blur-sm disabled:opacity-50">
-                <option>Select a Campaign First</option>
-              </select>
-              <span className="text-xs text-slate-300 lg:text-right">0 Campaign Players</span>
-            </ControlRow>
-
-            <ControlRow label="Character" last>
-              <select disabled className="h-11 w-full rounded-xl border border-white/15 bg-black/50 px-4 text-sm text-slate-300 outline-none backdrop-blur-sm disabled:opacity-50">
-                <option>Select a Player First</option>
-              </select>
-              <div className="flex flex-wrap gap-2 lg:justify-end">
-                <button disabled className="min-h-10 rounded-full border border-amber-300/50 bg-amber-300/10 px-4 text-sm text-amber-100 opacity-40">Active</button>
-                <button disabled className="min-h-10 rounded-full border border-white/15 px-4 text-sm text-slate-300 opacity-40">Archived</button>
-                <button disabled className="min-h-10 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 text-sm text-amber-100/80 opacity-40">New Character</button>
-                <span className="min-h-10 rounded-full border border-white/10 px-4 py-2.5 text-sm text-slate-400">Edit Character</span>
-                <span className="min-h-10 rounded-full border border-white/10 px-4 py-2.5 text-sm text-slate-400">Character lifecycle</span>
-              </div>
-            </ControlRow>
-          </div>
+          <HeavensLocalCampaignControl />
         </section>
 
         <section className="mt-10">
@@ -118,20 +88,3 @@ export default function HeavensPage() {
   );
 }
 
-function ControlRow({
-  label,
-  children,
-  last = false,
-}: {
-  label: string;
-  children: [React.ReactNode, React.ReactNode];
-  last?: boolean;
-}) {
-  return (
-    <div className={"grid gap-3 py-4 sm:grid-cols-[110px_minmax(0,1fr)] lg:grid-cols-[110px_minmax(0,1fr)_auto] lg:items-center " + (last ? "" : "border-b border-white/10")}>
-      <span className="text-lg text-slate-200">{label}</span>
-      {children[0]}
-      <div className="sm:col-start-2 lg:col-start-auto">{children[1]}</div>
-    </div>
-  );
-}
