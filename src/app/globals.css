@@ -1,26 +1,170 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Portcullion";
+  src: url("/Portcullion.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Evanescent";
+  src: url("/evanescent.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --st-page: #04030c;
+  --st-text: #efe9da;
+  --st-text-soft: #c9bfd5;
+  --st-purple: #9c63d9;
+  --st-gold: #e5bd5a;
+  --st-gold-soft: #f5dda0;
+  --st-border: rgba(229, 189, 90, 0.42);
+  --st-surface: rgba(10, 7, 21, 0.5);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  min-height: 100%;
+  background: var(--st-page);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  color: var(--st-text);
+  font-family: "Evanescent", Georgia, serif;
+  background:
+    linear-gradient(rgba(4, 3, 12, 0.34), rgba(4, 3, 12, 0.55)),
+    url("/nebula.png") center / cover fixed no-repeat,
+    var(--st-page);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: min(92vw, 92vh, 1300px);
+  height: min(92vw, 92vh, 1300px);
+  margin: auto;
+  background: url("/alchemy.png") center / contain no-repeat;
+  opacity: 0.22;
+  pointer-events: none;
+  animation: st-alchemy-spin 120s linear infinite;
+  z-index: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(156, 99, 217, 0.45);
+  color: #fff;
+}
+
+@keyframes st-alchemy-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+}
+
+.landing-page {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 2rem;
+}
+
+.landing-hero {
+  width: min(100%, 72rem);
+  text-align: center;
+}
+
+.st-brand {
+  margin: 0;
+  font-family: "Portcullion", Georgia, serif;
+  font-size: clamp(4.5rem, 14vw, 10rem);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  background: linear-gradient(
+    100deg,
+    var(--st-purple),
+    var(--st-gold-soft) 48%,
+    var(--st-gold) 56%,
+    var(--st-purple)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 1.8rem rgba(142, 91, 190, 0.25));
+}
+
+.landing-tagline {
+  margin: 1.5rem 0 0;
+  color: var(--st-text-soft);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+  letter-spacing: 0.08em;
+}
+
+.landing-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.75rem;
+}
+
+.landing-enter {
+  min-height: 3.4rem;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-surface);
+  padding: 0.8rem 2rem;
+  color: var(--st-gold-soft);
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  box-shadow: 0 0 2rem rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.landing-enter:disabled {
+  cursor: default;
+  opacity: 0.9;
+}
+
+@media (max-width: 520px) {
+  .landing-page {
+    padding: 1.25rem;
+  }
+
+  .st-brand {
+    font-size: clamp(4rem, 22vw, 6.5rem);
+  }
+
+  .landing-tagline {
+    letter-spacing: 0.04em;
+  }
 }
