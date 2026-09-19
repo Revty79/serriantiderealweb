@@ -3,10 +3,8 @@ import Link from "next/link";
 import { useMemo,useState } from "react";
 import { readCampaigns,readRaces } from "@/lib/local-character-store";
 import { blankNpc,readNpcs,writeNpcs,type LocalNpc } from "@/lib/local-npc-store";
+import { readCreatures } from "@/lib/local-creature-store";
 import "./npcs.css";
-
-type GenericRecord={id:number;values:Record<string,string|boolean>;archivedAt:string|null};
-function readCreatures():GenericRecord[]{if(typeof window==="undefined")return[];try{const p=JSON.parse(localStorage.getItem("serrian-tide:prototype:creatures:v1")??"[]");return Array.isArray(p)?p:[]}catch{return[]}}
 
 export default function NpcsPage(){
  const campaigns=useMemo(()=>readCampaigns().filter(c=>!c.archivedAt),[]);
@@ -14,7 +12,7 @@ export default function NpcsPage(){
  const creatures=useMemo(()=>readCreatures().filter(c=>!c.archivedAt),[]);
  const [campaignId,setCampaignId]=useState(campaigns[0]?.id??0);const [status,setStatus]=useState<"active"|"archived">("active");const [search,setSearch]=useState("");const [version,setVersion]=useState(0);const [draft,setDraft]=useState<LocalNpc>(()=>blankNpc(campaigns[0]?.id??0));const [dirty,setDirty]=useState(false);const [showCreate,setShowCreate]=useState(false);
  const records=useMemo(()=>{void version;const q=search.trim().toLowerCase();return readNpcs().filter(n=>n.campaignId===campaignId&&Boolean(n.archivedAt)===(status==="archived")).filter(n=>!q||[n.name,n.roleLabel,n.sourceName].some(v=>v.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name))},[campaignId,status,search,version]);
- const sources=draft.origin==="race"?races.map(r=>({id:r.id,name:r.core.name,detail:r.core.size})):creatures.map(c=>({id:c.id,name:String(c.values.canonicalName??c.values.name??"Untitled Creature"),detail:String(c.values.family??c.values.creatureType??"Creature")}));
+ const sources=draft.origin==="race"?races.map(r=>({id:r.id,name:r.core.name,detail:r.core.size})):creatures.map(c=>({id:c.id,name:c.canonicalName||"Untitled Creature",detail:c.family||c.creatureType||"Creature"}));
  function change(update:Partial<LocalNpc>){setDraft(d=>({...d,...update}));setDirty(true)}
  function open(n:LocalNpc){if(dirty&&!confirm("Discard unsaved NPC changes?"))return;setDraft(n);setDirty(false);setShowCreate(false)}
  function fresh(){if(dirty&&!confirm("Discard unsaved NPC changes?"))return;setDraft(blankNpc(campaignId));setDirty(false);setShowCreate(true)}
