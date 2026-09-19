@@ -1,0 +1,10 @@
+export const DERIVED_STORAGE_KEY="serrian-tide:prototype:derived-abilities:v2";
+export type LocalRequirement={id:number;type:"attribute"|"skill"|"derived-ability"|"manual";attributeKey:string;skillId:number|null;derivedAbilityId:number|null;operator:string;value:number|null;text:string;notes:string;group:number};
+export type LocalCondition={id:number;type:string;comparison:string;numericValue:number|null;textValue:string;notes:string};
+export type LocalCost={id:number;type:string;amount:number|null;resourceKey:string;notes:string};
+export type LocalLimit={maximumUses:number|null;refreshScope:string;refreshEventKey:string;notes:string};
+export type LocalEffect={id:number;effectType:string;amount:number|null;scope:string;application:string;conditionName:string;description:string;label:string;modifierChannel:string;attributeTarget:string;skillId:number|null;movementMode:string;target:string;title:string;duration:string;durationCount:number|null;durationLabel:string};
+export type LocalDerivedAbility={id:number;name:string;description:string;acquisitionType:string;activationType:string;rulesText:string;requirements:LocalRequirement[];conditions:LocalCondition[];costs:LocalCost[];limit:LocalLimit;effects:LocalEffect[];archivedAt:string|null;archiveReason:string;createdAt:string;updatedAt:string};
+export function readDerivedAbilities():LocalDerivedAbility[]{if(typeof window==="undefined")return[];try{const p=JSON.parse(localStorage.getItem(DERIVED_STORAGE_KEY)??"[]");return Array.isArray(p)?p:[]}catch{return[]}}
+export function writeDerivedAbilities(rows:LocalDerivedAbility[]){localStorage.setItem(DERIVED_STORAGE_KEY,JSON.stringify(rows))}
+export function blankDerivedAbility():LocalDerivedAbility{const now=new Date().toISOString();return{id:0,name:"",description:"",acquisitionType:"automatic",activationType:"passive",rulesText:"",requirements:[],conditions:[],costs:[],limit:{maximumUses:null,refreshScope:"",refreshEventKey:"",notes:""},effects:[],archivedAt:null,archiveReason:"",createdAt:now,updatedAt:now}}

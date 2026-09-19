@@ -362,3 +362,5 @@
     grid-template-columns: 1fr;
   }
 }
+
+.local-derived-repeat{display:grid;gap:12px}.local-derived-repeat>header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--st-border);padding-bottom:8px}.local-derived-repeat>header h3{margin:0}.local-derived-repeat>div{display:grid;gap:10px}.derived-preview{display:grid;gap:14px}.derived-preview header p{color:var(--st-primary-soft-text);text-transform:uppercase}.derived-preview h3{margin:0;font-size:2rem}.derived-preview section{border:1px solid var(--st-border);border-radius:8px;padding:12px}
