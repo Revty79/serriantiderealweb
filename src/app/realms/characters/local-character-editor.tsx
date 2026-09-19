@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { readSkills } from "@/lib/local-skill-store";
 import {
   newCharacter,
   readCampaigns,
@@ -39,7 +40,14 @@ function SectionHeading({eyebrow,title,detail}:{eyebrow:string;title:string;deta
 export function LocalCharacterEditor({characterId,campaignId,playerUserId}:{characterId:number|null;campaignId:number|null;playerUserId?:string|null}) {
   const stored=useMemo(()=>characterId?readCharacters().find((row)=>row.id===characterId)??null:null,[characterId]);
   const initialCampaignId=stored?.campaignId ?? campaignId ?? readCampaigns().find((row)=>!row.archivedAt)?.id ?? 0;
-  const [draft,setDraft]=useState<LocalCharacter>(()=>stored ?? { ...newCharacter(initialCampaignId), playerUserId: playerUserId || "prototype-admin" });
+  const [draft,setDraft]=useState<LocalCharacter>(() => {
+    if (stored) return stored;
+    const base = { ...newCharacter(initialCampaignId), playerUserId: playerUserId || "prototype-admin" };
+    const localSkills = readSkills()
+      .filter((skill) => !skill.archivedAt && (skill.tier === 1 || skill.classification === "special ability"))
+      .map((skill) => ({ id: skill.id, name: skill.name, attribute: skill.primaryAttribute || "", points: 0, rank: 0 }));
+    return { ...base, skills: localSkills.length ? localSkills : base.skills };
+  });
   const [tab,setTab]=useState<Tab>("identity");
   const [dirty,setDirty]=useState(false);
   const [feedback,setFeedback]=useState("");
@@ -124,7 +132,7 @@ export function LocalCharacterEditor({characterId,campaignId,playerUserId}:{char
 
         {tab==="skills"?<div className="character-section">
           <SectionHeading eyebrow="CURRENT SKILL CATALOG" title="Skills & Abilities" detail={skillPoints+" invested points"} />
-          <p className="character-notice">This local prototype keeps the old allocation workflow visible. It will read the real local Skill library once the Skill workspace is converted from design mode to local persistence.</p>
+          <p className="character-notice">This allocation list comes from the locally saved Skill library for new Characters.</p>
           <section className="character-skill-group"><header><span>Prototype Skill Group</span><small>{draft.skills.length} Skills</small></header><div>{draft.skills.map((skill,index)=><div className="character-skill-row" key={skill.id}><div className="character-skill-row__identity"><div><strong>{skill.name}</strong></div><span>Tier 1 · {skill.attribute}</span></div><label><span>Points</span><input type="number" min={0} value={skill.points} onChange={e=>{const points=Number(e.target.value);change({skills:draft.skills.map((row,i)=>i===index?{...row,points,rank:Math.floor(points/5)}:row)})}}/></label><div><span>Rank</span><strong>{skill.rank}</strong></div><div><span>Roll Target</span><strong>{Math.max(0,100-(draft.attributes[skill.attribute as keyof typeof draft.attributes]??0)-skill.rank)}%</strong></div></div>)}</div></section>
         </div>:null}
 
