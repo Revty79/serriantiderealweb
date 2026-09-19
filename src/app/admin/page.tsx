@@ -1,11 +1,11 @@
 import Link from "next/link";
 
 const adminSections = [
-  { title: "USER MANAGEMENT", subtitle: "Accounts", description: "View Serrian Tide users and manage their access to the system.", area: "admin-users" },
-  { title: "CONTENT OVERVIEW", subtitle: "Site-wide Content", description: "Review Campaigns, Characters, NPCs, ownership, and shared catalog totals.", area: "admin-content" },
-  { title: "APPEARANCE", subtitle: "Site Theme", description: "Choose site-wide colors, presentation rules, and future appearance settings.", area: "admin-appearance" },
-  { title: "ROLE MANAGEMENT", subtitle: "Permissions", description: "Assign and remove Admin, G.O.D., and Player capabilities.", area: "admin-roles" },
-  { title: "SYSTEM OVERVIEW", subtitle: "Administration", description: "Review the health and configuration of the Serrian Tide system.", area: "admin-system" },
+  { title: "USER MANAGEMENT", subtitle: "Accounts", description: "View Serrian Tide users and manage their access to the system.", href: "/admin/users" },
+  { title: "CONTENT OVERVIEW", subtitle: "Site-wide Content", description: "Review Campaigns, Characters, NPCs, ownership, and shared catalog totals.", href: "/admin/content" },
+  { title: "APPEARANCE", subtitle: "Site Theme", description: "Choose site-wide colors, presentation rules, and future appearance settings.", href: "/admin/appearance" },
+  { title: "ROLE MANAGEMENT", subtitle: "Permissions", description: "Assign and remove Admin, G.O.D., and Player capabilities.", href: "/admin/roles" },
+  { title: "SYSTEM OVERVIEW", subtitle: "Administration", description: "Review the health and configuration of the Serrian Tide system.", href: "/admin/system" },
 ];
 
 export default function AdminPage() {
@@ -34,7 +34,7 @@ export default function AdminPage() {
 
           <div className="admin-grid">
             {adminSections.map((section) => (
-              <Link key={section.title} href={"/coming-soon?area=" + section.area} className="admin-card">
+              <Link key={section.title} href={section.href} className="admin-card">
                 <div>
                   <span className="portal-pill">{section.subtitle}</span>
                   <h2>{section.title}</h2>
