@@ -105,8 +105,7 @@
 .campaign-access-badge.is-owner{border-color:color-mix(in srgb, var(--st-primary) 25%, transparent);background:color-mix(in srgb, var(--st-primary) 11%, transparent);color:var(--st-primary-soft-text)}
 .campaign-access-badge.is-administrator{border-color:color-mix(in srgb, var(--st-primary) 25%, transparent);background:color-mix(in srgb, var(--st-primary) 11%, transparent);color:var(--st-primary-soft-text)}
 
-.campaign-nav-button{min-height:36px;border:1px solid color-mix(in srgb,var(--st-secondary) 72%,transparent);border-radius:999px;background:color-mix(in srgb,var(--st-secondary) 13%,transparent);padding:7px 11px;color:var(--st-secondary-soft-text);font-size:.75rem}
-.campaign-library-filters{display:flex;gap:6px;margin-top:9px}.campaign-library-filters button{min-height:30px;border:1px solid var(--st-border);border-radius:999px;background:transparent;padding:5px 9px;color:var(--st-muted)}.campaign-library-filters button.is-active{border-color:var(--st-secondary-border);background:var(--st-secondary-soft);color:var(--st-secondary-soft-text)}
-.campaign-editor-actions{display:flex;flex-wrap:wrap;gap:7px}.campaign-editor-actions .is-danger{border-color:color-mix(in srgb,var(--st-danger) 35%,transparent);background:color-mix(in srgb,var(--st-danger) 10%,transparent);color:var(--st-danger)}
-.campaign-local-reset{padding:8px!important;border-top:1px solid var(--st-border)}.campaign-local-reset button{width:100%;min-height:34px;border:1px solid color-mix(in srgb,var(--st-danger) 30%,transparent);border-radius:7px;background:transparent;color:var(--st-danger)}
-.campaign-field textarea{width:100%;border:1px solid color-mix(in srgb,var(--st-text-strong) 12%,transparent);border-radius:7px;background:color-mix(in srgb,var(--st-page) 62%,transparent);padding:8px 9px;color:var(--st-text)}
+.campaign-nav-button{min-height:36px;border:1px solid color-mix(in srgb,var(--st-secondary) 28%,transparent);border-radius:999px;background:color-mix(in srgb,var(--st-secondary) 7%,transparent);padding:7px 11px;color:var(--st-secondary-soft-text);font-size:.75rem}
+.campaign-nav-button.is-primary{border-color:color-mix(in srgb,var(--st-secondary) 72%,transparent);background:color-mix(in srgb,var(--st-secondary) 13%,transparent)}
+.campaign-editor-actions{display:flex;flex-wrap:wrap;gap:7px}
+.campaign-editor-actions .is-danger{border-color:color-mix(in srgb,var(--st-danger) 35%,transparent);color:var(--st-danger)}
