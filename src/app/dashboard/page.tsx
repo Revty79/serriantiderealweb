@@ -1,94 +1,89 @@
 import Link from "next/link";
 
-const dashboardCards = [
+const accessOptions = [
   {
-    title: "The Source Forge",
-    description: "Create and manage worlds, eras, and settings under your control as G.O.D.",
-    action: "Light The Forge",
-    href: "/coming-soon?area=source-forge",
-    accent: "amber",
+    key: "admin",
+    title: "ADMIN",
+    subtitle: "System Administration",
+    href: "/coming-soon?area=admin",
+    description:
+      "Manage Serrian Tide users, permissions, and system-level administration.",
   },
   {
-    title: "The Gods' Realm",
-    description: "Design campaigns, sessions, encounters, and the systems behind your world.",
-    action: "Enter Realm",
-    href: "/coming-soon?area=gods-realm",
-    accent: "gold",
+    key: "heavens",
+    title: "THE HEAVENS",
+    subtitle: "G.O.D. Access",
+    href: "/coming-soon?area=heavens",
+    description:
+      "Enter the G.O.D. side of Serrian Tide to create, manage, and run the systems behind the world.",
   },
   {
-    title: "The Players' Realm",
-    description: "Join a table, manage Characters, and continue your adventures.",
-    action: "Enter Realm",
-    href: "/coming-soon?area=players-realm",
-    accent: "emerald",
+    key: "realms",
+    title: "THE REALMS",
+    subtitle: "Player Access",
+    href: "/coming-soon?area=realms",
+    description:
+      "Enter the player-facing side of Serrian Tide for characters, campaigns, and play.",
   },
   {
-    title: "Free Tools",
-    description: "Access character creators, calculators, and other public utilities.",
-    action: "Open Tools",
-    href: "/coming-soon?area=free-tools",
-    accent: "violet",
-  },
-  {
-    title: "The Astral Gate",
-    description: "Gateway to live tables, maps, and the future Serrian Tide VTT.",
-    action: "Enter Gate",
-    href: "/coming-soon?area=astral-gate",
-    accent: "cyan",
-  },
-  {
-    title: "The Bazaar",
-    description: "Browse future world packs, tools, modules, and community creations.",
-    action: "Enter Shop",
-    href: "/coming-soon?area=bazaar",
-    accent: "blue",
+    key: "crossroads",
+    title: "THE CROSSROADS",
+    subtitle: "Communication Center",
+    href: "/coming-soon?area=crossroads",
+    description:
+      "Join global discussions, continue Campaign conversations, and send direct messages from one shared workspace.",
   },
 ];
 
 export default function DashboardPage() {
   return (
-    <main className="dashboard-page">
-      <header className="dashboard-header">
-        <div>
-          <h1 className="dashboard-title font-evanescent">Dashboard</h1>
-          <p>Welcome, Adventurer</p>
+    <main className="access-page">
+      <section className="access-shell">
+        <div className="access-heading">
+          <Link href="/" className="access-brand">
+            Serrian Tide
+          </Link>
+
+          <h1 className="font-evanescent">Choose Your Path</h1>
+
+          <p>
+            Welcome, Adventurer. Choose the path you wish to enter.
+          </p>
         </div>
 
-        <div className="dashboard-account-actions">
-          <Link href="/coming-soon?area=profile">Profile</Link>
-          <Link href="/">Logout</Link>
-        </div>
-      </header>
+        <div
+          className="access-grid"
+          data-card-count={accessOptions.length}
+          aria-label="Serrian Tide access paths"
+        >
+          {accessOptions.map((option) => (
+            <Link
+              key={option.key}
+              href={option.href}
+              className="access-card"
+            >
+              <div>
+                <span className="access-card-subtitle">
+                  {option.subtitle}
+                </span>
 
-      <section className="dashboard-grid" aria-label="Serrian Tide destinations">
-        {dashboardCards.map((card) => (
-          <article key={card.title} className={`dashboard-card dashboard-card--${card.accent}`}>
-            <div className="dashboard-card-mark" aria-hidden="true">
-              <span />
-            </div>
+                <h2>{option.title}</h2>
 
-            <h2>{card.title}</h2>
-            <p>{card.description}</p>
+                <p>{option.description}</p>
+              </div>
 
-            <Link className="dashboard-card-action" href={card.href}>
-              {card.action}
+              <div className="access-card-enter">
+                <span>Enter</span>
+                <strong aria-hidden="true">→</strong>
+              </div>
             </Link>
-          </article>
-        ))}
-      </section>
+          ))}
+        </div>
 
-      <section className="dashboard-status" aria-label="Temporary access status">
-        <p>
-          <span className="font-evanescent">Build mode</span>
-          <strong>Temporary click-through enabled</strong>
-        </p>
-        <span>Authentication and role permissions will be connected later.</span>
+        <div className="access-return">
+          <Link href="/login">← Return to login</Link>
+        </div>
       </section>
-
-      <footer className="dashboard-footer">
-        <Link href="/">← Return Home</Link>
-        <span className="dashboard-footer-brand">Serrian Tide</span>
-      </footer>
     </main>
   );
 }
