@@ -26,7 +26,7 @@ export type LocalCharacter = {
   fatePoints: number | null;
   attributes: Record<"STR"|"DEX"|"CON"|"INT"|"WIS"|"CHR", number>;
   skills: Array<{ id:number; name:string; attribute:string; points:number; rank:number }>;
-  items: Array<{ id:number; name:string; category:string; quantity:number; unitCost:number }>;
+  items: Array<{ id:number; catalogKey?:string; name:string; category:string; quantity:number; unitCost:number }>;
   fame: number;
   experience: number;
   totalExperience: number;
@@ -50,6 +50,8 @@ export type LocalCampaignSummary = {
   fatePointMethod:"Assigned"|"Rolled";
   campaignRaceIds:number[];
   allowedRaceIds:number[];
+  inventoryTagKeys?:string[];
+  inventoryItemKeys?:string[];
   archivedAt:string|null;
 };
 
