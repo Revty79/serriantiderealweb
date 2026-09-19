@@ -376,3 +376,5 @@
   .npcs-index-tools { width: 100%; align-items: stretch; flex-direction: column; }
   .npcs-simple-editor > footer > div { flex-direction: column; }
 }
+
+.npcs-detailed-local{margin-top:18px;padding-top:18px;border-top:1px solid var(--st-border)}.npcs-detailed-local h3{margin:0 0 12px;color:var(--st-secondary-soft-text)}

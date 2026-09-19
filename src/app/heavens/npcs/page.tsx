@@ -1,74 +1,50 @@
+"use client";
 import Link from "next/link";
+import { useMemo,useState } from "react";
+import { readCampaigns,readRaces } from "@/lib/local-character-store";
+import { blankNpc,readNpcs,writeNpcs,type LocalNpc } from "@/lib/local-npc-store";
 import "./npcs.css";
-import "../design-mode.css";
 
-export default function NpcsPage() {
-  return <main className="npcs-page">
-    <header className="npcs-header">
-      <Link href="/heavens" className="font-portcullion npcs-logo">Serrian<br />Tide</Link>
-      <div><p>THE HEAVENS / NPCS</p><h1 className="font-sans">NPC Master Sheet</h1><span>Create, find, edit, archive, and restore Campaign NPCs.</span></div>
-      <nav><Link href="/heavens">← The Heavens</Link></nav>
-    </header>
+type GenericRecord={id:number;values:Record<string,string|boolean>;archivedAt:string|null};
+function readCreatures():GenericRecord[]{if(typeof window==="undefined")return[];try{const p=JSON.parse(localStorage.getItem("serrian-tide:prototype:creatures:v1")??"[]");return Array.isArray(p)?p:[]}catch{return[]}}
 
-    <aside className="npcs-scope-banner is-god">
-      <div><p>DESIGN MODE · G.O.D. OWNER SCOPE</p><h2 className="font-sans">NPCs in Campaigns you own</h2></div>
-      <span>All compact NPC authoring fields and creation controls are visible for redesign. Nothing saves yet.</span>
-    </aside>
-
-    <section className="npcs-control">
-      <div><p>CAMPAIGN CONTEXT</p><h2 className="font-sans">Choose the NPC archive</h2></div>
-      <label><span>Campaign</span><select><option>Design Campaign</option></select></label>
-      <button type="button">Create NPC</button>
-    </section>
-
-    <section className="npcs-master">
-      <header>
-        <div><p>MASTER NPC INDEX</p><h2 className="font-sans">Design Campaign</h2><span>1 design NPC record</span></div>
-        <div className="npcs-index-tools">
-          <div className="npcs-segmented"><button aria-pressed="true">Active</button><button>Archived</button></div>
-          <input type="search" aria-label="Search NPCs" placeholder="Search name, role, or source" />
-        </div>
-      </header>
-      <div className="npcs-grid">
-        <article className="npcs-card">
-          <header><span>NPC-DRAFT</span><span className="npcs-status is-active">draft</span></header>
-          <strong>New NPC Draft</strong><p>No role label</p>
-          <dl><div><dt>Kind</dt><dd>Race NPC</dd></div><div><dt>Build</dt><dd>Simple</dd></div><div><dt>Source</dt><dd>Unconfigured</dd></div></dl>
-          <footer><button type="button">Open Simple Editor</button></footer>
-        </article>
-      </div>
-    </section>
-
-    <section className="npcs-simple-editor" aria-labelledby="simple-npc-heading">
-      <header>
-        <div><p>COMPACT NPC RECORD</p><h2 id="simple-npc-heading" className="font-sans">New NPC Draft</h2><span>Unconfigured · Simple NPC · design mode</span></div>
-        <button type="button" disabled>Close</button>
-      </header>
-      <div className="npcs-form-grid">
-        <label><span>Name</span><input /></label>
-        <label><span>Role / Label</span><input /></label>
-        <label><span>Origin</span><input placeholder="Race or Creature source" /></label>
-        <label className="is-wide"><span>Short Personality / Description</span><textarea rows={3} /></label>
-        <label className="is-wide"><span>Notes</span><textarea rows={4} /></label>
-      </div>
-      <footer>
-        <span>Upgrade is one-way. It preserves this record and opens the full editor.</span>
-        <div><button type="button" disabled>Save Simple NPC</button><button type="button">Upgrade to Detailed</button></div>
-      </footer>
-    </section>
-
-    <section className="npcs-simple-editor" aria-labelledby="new-npc-heading">
-      <header><div><p>NEW CAMPAIGN NPC</p><h2 id="new-npc-heading" className="font-sans">Choose a source and build depth</h2><span>This mirrors the old creation dialog while we redesign it.</span></div></header>
-      <div className="npcs-form-grid">
-        <label><span>Origin</span><select><option>Race</option><option>Creature</option></select></label>
-        <label><span>Build Mode</span><select><option>Simple</option><option>Detailed</option></select></label>
-        <label className="is-wide"><span>Find Source Master</span><input type="search" placeholder="Search Race or master Creature" /></label>
-        <label><span>Source Master</span><select><option>Choose source</option></select></label>
-        <label><span>NPC Name</span><input /></label>
-        <label><span>Role / Label</span><input placeholder="Innkeeper, guide, rival…" /></label>
-        <label className="is-wide"><span>Short Personality / Description</span><textarea rows={3} /></label>
-        <label className="is-wide"><span>Notes</span><textarea rows={3} /></label>
-      </div>
-    </section>
-  </main>;
+export default function NpcsPage(){
+ const campaigns=useMemo(()=>readCampaigns().filter(c=>!c.archivedAt),[]);
+ const races=useMemo(()=>readRaces().filter(r=>!r.archivedAt),[]);
+ const creatures=useMemo(()=>readCreatures().filter(c=>!c.archivedAt),[]);
+ const [campaignId,setCampaignId]=useState(campaigns[0]?.id??0);const [status,setStatus]=useState<"active"|"archived">("active");const [search,setSearch]=useState("");const [version,setVersion]=useState(0);const [draft,setDraft]=useState<LocalNpc>(()=>blankNpc(campaigns[0]?.id??0));const [dirty,setDirty]=useState(false);const [showCreate,setShowCreate]=useState(false);
+ const records=useMemo(()=>{void version;const q=search.trim().toLowerCase();return readNpcs().filter(n=>n.campaignId===campaignId&&Boolean(n.archivedAt)===(status==="archived")).filter(n=>!q||[n.name,n.roleLabel,n.sourceName].some(v=>v.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name))},[campaignId,status,search,version]);
+ const sources=draft.origin==="race"?races.map(r=>({id:r.id,name:r.core.name,detail:r.core.size})):creatures.map(c=>({id:c.id,name:String(c.values.canonicalName??c.values.name??"Untitled Creature"),detail:String(c.values.family??c.values.creatureType??"Creature")}));
+ function change(update:Partial<LocalNpc>){setDraft(d=>({...d,...update}));setDirty(true)}
+ function open(n:LocalNpc){if(dirty&&!confirm("Discard unsaved NPC changes?"))return;setDraft(n);setDirty(false);setShowCreate(false)}
+ function fresh(){if(dirty&&!confirm("Discard unsaved NPC changes?"))return;setDraft(blankNpc(campaignId));setDirty(false);setShowCreate(true)}
+ function save(){if(!draft.name.trim()||!draft.campaignId||!draft.sourceId)return;const rows=readNpcs();const source=sources.find(s=>s.id===draft.sourceId);const now=new Date().toISOString();let next:LocalNpc={...draft,sourceName:source?.name??draft.sourceName,updatedAt:now};if(draft.id){const i=rows.findIndex(n=>n.id===draft.id);if(i<0)return;rows[i]=next}else{const id=rows.reduce((m,n)=>Math.max(m,n.id),0)+1;next={...next,id};rows.push(next)}writeNpcs(rows);setDraft(next);setDirty(false);setShowCreate(false);setVersion(v=>v+1)}
+ function archive(){if(!draft.id)return;const rows=readNpcs();const i=rows.findIndex(n=>n.id===draft.id);if(i<0)return;const next={...draft,archivedAt:new Date().toISOString(),archiveReason:prompt("Archive reason (optional):")??""};rows[i]=next;writeNpcs(rows);setDraft(next);setDirty(false);setVersion(v=>v+1)}
+ function restore(){if(!draft.id)return;const rows=readNpcs();const i=rows.findIndex(n=>n.id===draft.id);if(i<0)return;const next={...draft,archivedAt:null,archiveReason:""};rows[i]=next;writeNpcs(rows);setDraft(next);setDirty(false);setVersion(v=>v+1)}
+ function remove(){if(!draft.id||prompt("Type "+draft.name+" to delete this local NPC:")!==draft.name)return;writeNpcs(readNpcs().filter(n=>n.id!==draft.id));setDraft(blankNpc(campaignId));setDirty(false);setVersion(v=>v+1)}
+ function upgrade(){change({buildMode:"detailed"});setShowCreate(false)}
+ return <main className="npcs-page">
+  <header className="npcs-header"><Link href="/heavens" className="font-portcullion npcs-logo">Serrian<br/>Tide</Link><div><p>THE HEAVENS / NPCS</p><h1>NPC Master Sheet</h1><span>Create, find, edit, archive, and restore Campaign NPCs.</span></div><nav><Link href="/heavens">← The Heavens</Link></nav></header>
+  <aside className="npcs-scope-banner is-god"><div><p>LOCAL PROTOTYPE · G.O.D. OWNER SCOPE</p><h2>NPCs in Campaigns you own</h2></div><span>Campaign, source master, compact/detailed state, story, and permanent attributes persist in browser storage. No runtime state is present.</span></aside>
+  <section className="npcs-control"><div><p>CAMPAIGN CONTEXT</p><h2>Choose the NPC archive</h2></div><label><span>Campaign</span><select value={campaignId} onChange={e=>{setCampaignId(Number(e.target.value));setDraft(blankNpc(Number(e.target.value)));setDirty(false)}}><option value={0}>No Campaign Selected</option>{campaigns.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label><button disabled={!campaignId} onClick={fresh}>Create NPC</button></section>
+  <section className="npcs-master"><header><div><p>MASTER NPC INDEX</p><h2>{campaigns.find(c=>c.id===campaignId)?.name??"Select a Campaign"}</h2><span>{records.length} {status} NPC records</span></div><div className="npcs-index-tools"><div className="npcs-segmented"><button aria-pressed={status==="active"} onClick={()=>setStatus("active")}>Active</button><button aria-pressed={status==="archived"} onClick={()=>setStatus("archived")}>Archived</button></div><input type="search" placeholder="Search name, role, or source" value={search} onChange={e=>setSearch(e.target.value)}/></div></header>
+   {records.length?<div className="npcs-grid">{records.map(n=><article key={n.id} className="npcs-card"><header><span>NPC-{String(n.id).padStart(4,"0")}</span><span className={"npcs-status is-"+(n.archivedAt?"archived":"active")}>{n.archivedAt?"archived":"active"}</span></header><strong>{n.name}</strong><p>{n.roleLabel||"No role label"}</p><dl><div><dt>Kind</dt><dd>{n.origin==="creature"?"Creature NPC":"Race NPC"}</dd></div><div><dt>Build</dt><dd>{n.buildMode==="simple"?"Simple":"Detailed"}</dd></div><div><dt>Source</dt><dd>{n.sourceName}</dd></div></dl><footer><button onClick={()=>open(n)}>Open {n.buildMode==="simple"?"Simple":"Detailed"} Editor</button><Link href={"/heavens/npcs/"+n.id}>Full Page</Link></footer></article>)}</div>:<div className="npcs-empty"><strong>No NPCs</strong><span>Create the first local NPC for this Campaign.</span></div>}
+  </section>
+  {(showCreate||draft.id)?<section className="npcs-simple-editor"><header><div><p>{draft.id?"NPC RECORD":"NEW CAMPAIGN NPC"}</p><h2>{draft.name||"Choose a source and build depth"}</h2><span>{draft.buildMode==="simple"?"Simple NPC":"Detailed NPC"} · local prototype</span></div><button onClick={()=>{if(!dirty||confirm("Discard changes?")){setDraft(blankNpc(campaignId));setDirty(false);setShowCreate(false)}}}>Close</button></header>
+   <div className="npcs-form-grid">
+    <label><span>Origin</span><select value={draft.origin} onChange={e=>change({origin:e.target.value as LocalNpc["origin"],sourceId:0,sourceName:""})}><option value="race">Race</option><option value="creature">Creature</option></select></label>
+    <label><span>Build Mode</span><select value={draft.buildMode} onChange={e=>change({buildMode:e.target.value as LocalNpc["buildMode"]})}><option value="simple">Simple</option><option value="detailed">Detailed</option></select></label>
+    <label className="is-wide"><span>Find Source Master</span><input type="search" placeholder={"Choose from "+(draft.origin==="race"?"local Races":"local Creatures")+" below"}/></label>
+    <label><span>Source Master</span><select value={draft.sourceId||""} onChange={e=>{const id=Number(e.target.value);const s=sources.find(x=>x.id===id);change({sourceId:id,sourceName:s?.name??""})}}><option value="">Choose {draft.origin==="race"?"Race":"Creature"}</option>{sources.map(s=><option key={s.id} value={s.id}>{s.name} · {s.detail}</option>)}</select></label>
+    <label><span>NPC Name</span><input value={draft.name} onChange={e=>change({name:e.target.value})}/></label><label><span>Role / Label</span><input value={draft.roleLabel} onChange={e=>change({roleLabel:e.target.value})}/></label>
+    <label className="is-wide"><span>Short Personality / Description</span><textarea rows={3} value={draft.personalityDescription} onChange={e=>change({personalityDescription:e.target.value})}/></label><label className="is-wide"><span>Notes</span><textarea rows={3} value={draft.notes} onChange={e=>change({notes:e.target.value})}/></label>
+   </div>
+   {draft.buildMode==="detailed"?<DetailedFields draft={draft} change={change}/>:null}
+   <footer><span>{draft.buildMode==="simple"?"Upgrade remains available without deleting this record.":"Detailed permanent fields are open below."}</span><div><button disabled={Boolean(draft.archivedAt)} onClick={save}>Save NPC</button>{draft.buildMode==="simple"?<button onClick={upgrade}>Upgrade to Detailed</button>:null}{draft.id?(draft.archivedAt?<button onClick={restore}>Restore</button>:<button disabled={dirty} onClick={archive}>Archive</button>):null}{draft.id?<button className="is-danger" disabled={dirty} onClick={remove}>Delete</button>:null}</div></footer>
+  </section>:null}
+ </main>;
+}
+function DetailedFields({draft,change}:{draft:LocalNpc;change:(u:Partial<LocalNpc>)=>void}){
+ const attrs=Object.keys(draft.attributes) as Array<keyof LocalNpc["attributes"]>;
+ return <div className="npcs-detailed-local"><h3>Detailed Permanent Record</h3><div className="npcs-form-grid">{attrs.map(k=><label key={k}><span>{k}</span><input type="number" value={draft.attributes[k]} onChange={e=>change({attributes:{...draft.attributes,[k]:Number(e.target.value)}})}/></label>)}<label className="is-wide"><span>Personality</span><textarea rows={4} value={draft.personality} onChange={e=>change({personality:e.target.value})}/></label><label className="is-wide"><span>Goals</span><textarea rows={4} value={draft.goals} onChange={e=>change({goals:e.target.value})}/></label><label className="is-wide"><span>Secrets</span><textarea rows={4} value={draft.secrets} onChange={e=>change({secrets:e.target.value})}/></label><label className="is-wide"><span>Backstory</span><textarea rows={6} value={draft.backstory} onChange={e=>change({backstory:e.target.value})}/></label><label className="is-wide"><span>Motivations</span><textarea rows={4} value={draft.motivations} onChange={e=>change({motivations:e.target.value})}/></label></div></div>
 }

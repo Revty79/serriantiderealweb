@@ -1,0 +1,1 @@
+import { LocalNpcDetail } from "./local-npc-detail";export default async function NpcPage({params}:{params:Promise<{npcId:string}>}){const {npcId}=await params;return <LocalNpcDetail npcId={Number(npcId)}/>;}
