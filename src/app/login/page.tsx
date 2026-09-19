@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type Mode = "login" | "register";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [mode, setMode] = useState<Mode>("login");
   const [message, setMessage] = useState<string | null>(null);
 
@@ -34,7 +36,7 @@ export default function LoginPage() {
       return;
     }
 
-    setMessage("Account login will be connected when we build authentication.");
+    router.push("/dashboard");
   }
 
   function handleRegister() {
@@ -53,7 +55,7 @@ export default function LoginPage() {
       return;
     }
 
-    setMessage("Account registration will be connected when we build authentication.");
+    router.push("/dashboard");
   }
 
   return (

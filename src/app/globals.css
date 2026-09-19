@@ -397,3 +397,32 @@ a {
     top: 0.5rem;
   }
 }
+
+
+.dashboard-placeholder {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.dashboard-placeholder section {
+  width: min(100%, 38rem);
+}
+
+.dashboard-placeholder p {
+  margin: 0.65rem 0;
+  color: var(--st-text-soft);
+  font-size: 1.05rem;
+}
+
+.dashboard-placeholder .landing-enter {
+  margin-top: 1.75rem;
+}
+
+.dashboard-brand {
+  font-size: clamp(3.75rem, 12vw, 7rem);
+}
