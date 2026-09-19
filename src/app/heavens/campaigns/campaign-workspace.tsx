@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { readItems } from "@/lib/local-item-store";
 
 type CampaignTab = "rules" | "races" | "inventory";
 
@@ -29,6 +30,8 @@ type LocalCampaign = {
   allowedRaceIds: number[];
   inventoryTagIds: number[];
   inventoryItemIds: number[];
+  inventoryTagKeys?: string[];
+  inventoryItemKeys?: string[];
   archivedAt: string | null;
   archiveReason: string;
   createdAt: string;
@@ -106,6 +109,8 @@ function newCampaign(id = 0): LocalCampaign {
     allowedRaceIds: [],
     inventoryTagIds: [],
     inventoryItemIds: [],
+    inventoryTagKeys: [],
+    inventoryItemKeys: [],
     archivedAt: null,
     archiveReason: "",
     createdAt: now,
@@ -476,57 +481,60 @@ function RaceColumn({
 }
 
 function InventoryAccess({ draft, onChange }: { draft: LocalCampaign; onChange: (draft: LocalCampaign) => void }) {
-  const placeholderTags = [
-    { id: 1, name: "Fantasy", group: "Genre" },
-    { id: 2, name: "Modern", group: "Genre" },
-    { id: 3, name: "Firearms", group: "Equipment" },
-    { id: 4, name: "Magic", group: "Equipment" },
-  ];
-  const placeholderItems = [
-    { id: 1, name: "Sample Weapon" },
-    { id: 2, name: "Sample Armor" },
-    { id: 3, name: "Sample Inventory Item" },
-  ];
+  const equipment = readItems("equipment").filter((item) => !item.archivedAt);
+  const inventory = readItems("inventory").filter((item) => !item.archivedAt);
+  const items = [
+    ...equipment.map((item) => ({ ...item, catalogKey: "equipment:" + item.id, scopeLabel: "Equipment" })),
+    ...inventory.map((item) => ({ ...item, catalogKey: "inventory:" + item.id, scopeLabel: "Inventory" })),
+  ].sort((a, b) => a.name.localeCompare(b.name));
+  const tags = [...new Map(items.flatMap((item) => item.tags.map((tag) => {
+    const key = item.scope + ":" + tag.group + ":" + tag.tag;
+    return [key, { key, name: tag.tag, group: tag.group || "Ungrouped" }] as const;
+  }))).values()].sort((a, b) => a.name.localeCompare(b.name));
+  const tagKeys = draft.inventoryTagKeys ?? [];
+  const itemKeys = draft.inventoryItemKeys ?? [];
 
   return <div className="campaign-section">
     <SectionHeading eyebrow="CAMPAIGN CATALOG" title="Inventory Access" />
-    <p className="campaign-help">Temporary local choices are here so the authorization UI remains fully testable until Equipment and Inventory expose their own local libraries.</p>
+    <p className="campaign-help">This reads the locally authored Equipment and Inventory catalogs. Tag access and explicit Item access are both prototype-authoritative here.</p>
 
     <div className="campaign-tag-grid">
-      {placeholderTags.map((tag) => (
-        <label key={tag.id} className={draft.inventoryTagIds.includes(tag.id) ? "is-selected" : ""}>
+      {tags.map((tag) => (
+        <label key={tag.key} className={tagKeys.includes(tag.key) ? "is-selected" : ""}>
           <input
             type="checkbox"
-            checked={draft.inventoryTagIds.includes(tag.id)}
+            checked={tagKeys.includes(tag.key)}
             onChange={(event) => onChange({
               ...draft,
-              inventoryTagIds: event.target.checked
-                ? [...draft.inventoryTagIds, tag.id]
-                : draft.inventoryTagIds.filter((id) => id !== tag.id),
+              inventoryTagKeys: event.target.checked
+                ? [...tagKeys, tag.key]
+                : tagKeys.filter((key) => key !== tag.key),
             })}
           />
           <div><strong>{tag.name}</strong><span>{tag.group}</span></div>
         </label>
       ))}
+      {!tags.length ? <p className="campaign-empty-state">No local Item tags exist yet.</p> : null}
     </div>
 
     <SectionHeading eyebrow="EXPLICIT ITEMS" title="Individual Item Access" />
     <div className="campaign-tag-grid">
-      {placeholderItems.map((item) => (
-        <label key={item.id} className={draft.inventoryItemIds.includes(item.id) ? "is-selected" : ""}>
+      {items.map((item) => (
+        <label key={item.catalogKey} className={itemKeys.includes(item.catalogKey) ? "is-selected" : ""}>
           <input
             type="checkbox"
-            checked={draft.inventoryItemIds.includes(item.id)}
+            checked={itemKeys.includes(item.catalogKey)}
             onChange={(event) => onChange({
               ...draft,
-              inventoryItemIds: event.target.checked
-                ? [...draft.inventoryItemIds, item.id]
-                : draft.inventoryItemIds.filter((id) => id !== item.id),
+              inventoryItemKeys: event.target.checked
+                ? [...itemKeys, item.catalogKey]
+                : itemKeys.filter((key) => key !== item.catalogKey),
             })}
           />
-          <div><strong>{item.name}</strong><span>Temporary prototype item</span></div>
+          <div><strong>{item.name}</strong><span>{item.scopeLabel} · {item.category} · {item.credits ?? "Unpriced"} Credits</span></div>
         </label>
       ))}
+      {!items.length ? <p className="campaign-empty-state">Author Equipment or Inventory Items first.</p> : null}
     </div>
   </div>;
 }
