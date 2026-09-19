@@ -55,8 +55,8 @@ export default function HeavensPage() {
               </select>
               <div className="flex flex-wrap gap-2 lg:justify-end">
                 <button disabled className="min-h-10 rounded-full border border-white/15 bg-black/20 px-4 py-2.5 text-sm text-slate-300 opacity-40">Campaign Information</button>
-                <Link href="/coming-soon?area=campaign-settings" className="min-h-10 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2.5 text-sm text-amber-100/80">Edit Campaign</Link>
-                <Link href="/coming-soon?area=new-campaign" className="min-h-10 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2.5 text-sm text-amber-100/80">Create Campaign</Link>
+                <Link href="/heavens/campaigns" className="min-h-10 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2.5 text-sm text-amber-100/80">Edit Campaign</Link>
+                <Link href="/heavens/campaigns" className="min-h-10 rounded-full border border-amber-300/30 bg-amber-300/10 px-4 py-2.5 text-sm text-amber-100/80">Create Campaign</Link>
               </div>
             </ControlRow>
 
