@@ -2,7 +2,6 @@ import Link from "next/link";
 import "./realms.css";
 
 const actions = [
-  { title: "TABLETOP CONSOLE", subtitle: "Live Session Workspace", description: "Open current table state, requests, sources, Rolls, and recent history." },
   { title: "CHARACTER SHEET", subtitle: "Identity & Record", description: "Open your selected Character sheet or continue building an unfinished Character." },
   { title: "ADVANCE CHARACTER", subtitle: "Experience & Quintessence", description: "Spend Experience and Quintessence after Character creation is complete." },
   { title: "SPELLBOOK", subtitle: "Known Magic", description: "Review and manage this Character's saved Spells." },
