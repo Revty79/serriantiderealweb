@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="landing-page">
@@ -7,14 +9,9 @@ export default function Home() {
         </h1>
 
         <div className="landing-actions" aria-label="Serrian Tide entry">
-          <button
-            className="landing-enter"
-            type="button"
-            disabled
-            title="Login and account access are coming next."
-          >
+          <Link className="landing-enter" href="/login">
             Enter Your Imagination
-          </button>
+          </Link>
         </div>
       </section>
     </main>

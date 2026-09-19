@@ -69,6 +69,11 @@ textarea {
   font: inherit;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 ::selection {
   background: rgba(156, 99, 217, 0.45);
   color: #fff;
@@ -88,6 +93,14 @@ textarea {
   body::before {
     animation: none;
   }
+}
+
+.font-portcullion {
+  font-family: "Portcullion", Georgia, serif;
+}
+
+.font-evanescent {
+  font-family: "Evanescent", Georgia, serif;
 }
 
 .landing-page {
@@ -124,13 +137,6 @@ textarea {
   filter: drop-shadow(0 0 1.8rem rgba(142, 91, 190, 0.25));
 }
 
-.landing-tagline {
-  margin: 1.5rem 0 0;
-  color: var(--st-text-soft);
-  font-size: clamp(1.25rem, 3vw, 2rem);
-  letter-spacing: 0.08em;
-}
-
 .landing-actions {
   display: flex;
   justify-content: center;
@@ -138,7 +144,10 @@ textarea {
 }
 
 .landing-enter {
+  display: inline-flex;
   min-height: 3.4rem;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--st-border);
   border-radius: 999px;
   background: var(--st-surface);
@@ -148,11 +157,226 @@ textarea {
   letter-spacing: 0.06em;
   box-shadow: 0 0 2rem rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(8px);
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
 }
 
-.landing-enter:disabled {
-  cursor: default;
-  opacity: 0.9;
+.landing-enter:hover {
+  border-color: rgba(245, 221, 160, 0.78);
+  background: rgba(229, 189, 90, 0.12);
+  transform: translateY(-1px);
+}
+
+.login-page {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 5rem 1.5rem 2rem;
+}
+
+.login-back {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.9rem;
+  padding: 0.55rem 0.85rem;
+  color: var(--st-gold-soft);
+  transition: background 160ms ease;
+}
+
+.login-back:hover {
+  background: rgba(229, 189, 90, 0.08);
+}
+
+.login-card {
+  width: min(100%, 28rem);
+  border: 1px solid rgba(100, 116, 139, 0.58);
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.42);
+  padding: clamp(1rem, 3vw, 1.5rem);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(12px);
+}
+
+.login-heading {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.login-brand {
+  margin: 0;
+  font-family: "Portcullion", Georgia, serif;
+  font-size: clamp(3.25rem, 12vw, 4.25rem);
+  font-weight: 400;
+  line-height: 1;
+  background: linear-gradient(90deg, #a855f7 0%, #fbbf24 50%, #a855f7 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  filter:
+    drop-shadow(0 0 0.75rem rgba(251, 191, 36, 0.38))
+    drop-shadow(0 0 1.4rem rgba(168, 85, 247, 0.24));
+}
+
+.login-heading p {
+  margin: 0.5rem 0 0;
+  color: rgb(203 213 225);
+  font-size: 0.95rem;
+}
+
+.login-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(100, 116, 139, 0.58);
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.42);
+  padding: 0.25rem;
+}
+
+.login-tabs button {
+  min-height: 2.65rem;
+  border: 0;
+  border-radius: 0.85rem;
+  background: transparent;
+  color: rgb(226 232 240);
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+.login-tabs button:hover:not(.is-active) {
+  background: rgba(51, 65, 85, 0.7);
+}
+
+.login-tabs button.is-active {
+  background: rgba(251, 191, 36, 0.82);
+  color: rgb(15, 23, 42);
+  box-shadow: 0 0.35rem 1.2rem rgba(245, 158, 11, 0.32);
+}
+
+.login-message {
+  margin-bottom: 1rem;
+  border: 1px solid rgba(248, 113, 113, 0.38);
+  border-radius: 0.7rem;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 0.7rem 0.8rem;
+  color: rgb(254 202 202);
+  font-size: 0.9rem;
+}
+
+.login-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.login-field {
+  display: grid;
+  gap: 0.35rem;
+  color: rgb(241 245 249);
+  font-size: 0.9rem;
+}
+
+.login-field b {
+  color: rgb(252 211 77);
+  font-weight: 400;
+}
+
+.login-field input {
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid rgba(100, 116, 139, 0.62);
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.52);
+  padding: 0.7rem 0.9rem;
+  color: rgb(241 245 249);
+  outline: none;
+  box-shadow: inset 0 1px 0.5rem rgba(0, 0, 0, 0.14);
+}
+
+.login-field input::placeholder {
+  color: rgb(100 116 139);
+}
+
+.login-field input:focus {
+  border-color: rgba(252, 211, 77, 0.84);
+  box-shadow: 0 0 0 2px rgba(252, 211, 77, 0.28);
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 4.75rem;
+}
+
+.password-field button {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  border: 0;
+  background: transparent;
+  color: rgb(252 211 77);
+  cursor: pointer;
+  font-size: 0.78rem;
+  transform: translateY(-50%);
+}
+
+.login-submit {
+  min-height: 3rem;
+  margin-top: 0.25rem;
+  border: 1px solid rgba(253, 230, 138, 0.58);
+  border-radius: 1rem;
+  background: rgba(251, 191, 36, 0.82);
+  color: rgb(15 23 42);
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 0.6rem 1.75rem rgba(245, 158, 11, 0.26);
+  transition: background 160ms ease, transform 100ms ease;
+}
+
+.login-submit:hover {
+  background: rgba(252, 211, 77, 0.94);
+}
+
+.login-submit:active {
+  transform: scale(0.99);
+}
+
+.login-switch {
+  margin: 0.35rem 0 0;
+  color: rgb(148 163 184);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.login-switch button,
+.login-footer button {
+  border: 0;
+  background: transparent;
+  color: rgb(252 211 77);
+  cursor: pointer;
+}
+
+.login-switch button:hover,
+.login-footer button:hover {
+  text-decoration: underline;
+}
+
+.login-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  color: rgba(148, 163, 184, 0.82);
+  font-size: 0.76rem;
 }
 
 @media (max-width: 520px) {
@@ -164,7 +388,12 @@ textarea {
     font-size: clamp(4rem, 22vw, 6.5rem);
   }
 
-  .landing-tagline {
-    letter-spacing: 0.04em;
+  .login-page {
+    padding: 4.75rem 1rem 1.5rem;
+  }
+
+  .login-back {
+    left: 0.5rem;
+    top: 0.5rem;
   }
 }
