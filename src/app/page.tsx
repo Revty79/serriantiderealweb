@@ -6,8 +6,6 @@ export default function Home() {
           Serrian Tide
         </h1>
 
-        <p className="landing-tagline">Enter Your Imagination</p>
-
         <div className="landing-actions" aria-label="Serrian Tide entry">
           <button
             className="landing-enter"
