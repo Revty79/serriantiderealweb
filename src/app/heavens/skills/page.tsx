@@ -24,4 +24,4 @@ const tabs: DesignTab[] = [
   {id:"preview",label:"Preview",note:"The old page renders the complete Skill and construction preview here."},
 ];
 
-export default function SkillsPage(){return <DesignWorkspaceShell pageClass="" workspaceClass="" brandClass="" breadcrumb="THE HEAVENS / SKILLS" title="Skills" libraryTitle="Skill Library" newLabel="New Skill" searchPlaceholder="Search name, path, or description" libraryFilters={[{label:"Attribute",options:["STR","DEX","CON","INT","WIS","CHR"]},{label:"Tier",options:["1","2","3"]}]} countLabel="skills" tabs={tabs}/>;}
+export default function SkillsPage(){return <DesignWorkspaceShell pageClass="" workspaceClass="" brandClass="" breadcrumb="THE HEAVENS / SKILLS" title="Skills" libraryTitle="Skill Library" newLabel="New Skill" searchPlaceholder="Search name, path, or description" libraryFilters={[{label:"Attribute",options:["STR","DEX","CON","INT","WIS","CHR"]},{label:"Tier",options:["1","2","3"]}]} countLabel="skills" tabs={tabs} storageKey="serrian-tide:prototype:skills:v1"/>;}
