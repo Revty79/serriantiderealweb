@@ -161,14 +161,14 @@ export function LocalCharacterEditor({characterId,campaignId,playerUserId}:{char
 
         {tab==="god"?<div className="character-section">
           <SectionHeading eyebrow="ADMINISTRATIVE OVERRIDE" title="G.O.D. Controls" detail="Permanent Character record fields only." />
-          <p className="character-notice">Live HP, Mana, Effects, combat state, firearm readiness, and all Tabletop runtime controls are intentionally excluded.</p>
+          <p className="character-notice">This section changes permanent Character record values only. Temporary encounter state is outside this rebuild.</p>
           <div className="character-god-grid">
             {[["fame","Fame"],["experience","Available Experience"],["totalExperience","Lifetime Experience"],["quintessence","Available Quintessence"],["totalQuintessence","Lifetime Quintessence"],["hpMultiplierSteps","HP Multiplier Steps"],["baseMovementSteps","Base Movement Steps"],["baseMagicSteps","Base Magic Steps"],["creditsRemaining","Current Credits"]].map(([key,label])=><Field key={key} label={label}><input type="number" min={0} value={Number(draft[key as keyof LocalCharacter]??0)} onChange={e=>change({[key]:Number(e.target.value)} as Partial<LocalCharacter>)}/></Field>)}
           </div>
         </div>:null}
 
         {tab==="sheet"?<div className="character-section">
-          <SectionHeading eyebrow="PERMANENT CHARACTER RECORD" title="Character Sheet" detail="No live Tabletop state on this rebuild." />
+          <SectionHeading eyebrow="PERMANENT CHARACTER RECORD" title="Character Sheet" detail="Permanent Character record preview." />
           <div className="character-race-card"><header><p>{selectedRace?.core.size||"Race"}</p><h3>{draft.name||"Untitled Character"}</h3></header><div className="character-race-summary"><div><span>Campaign</span><strong>{campaign?.name||"None"}</strong></div><div><span>Race</span><strong>{selectedRace?.core.name||"None"}</strong></div><div><span>Age</span><strong>{draft.age??"—"}</strong></div><div><span>Fate</span><strong>{draft.fatePoints??"—"}</strong></div></div></div>
           <div className="character-rule-ledger">{ATTRIBUTES.map(([key])=><span key={key}>{key} <strong>{draft.attributes[key]}</strong></span>)}<span>Credits <strong>{draft.creditsRemaining}</strong></span><span>Fame <strong>{draft.fame}</strong></span><span>XP <strong>{draft.experience}</strong></span><span>Quintessence <strong>{draft.quintessence}</strong></span></div>
           <div className="character-story-grid"><Field label="Personality"><textarea readOnly rows={4} value={draft.personality}/></Field><Field label="Goals"><textarea readOnly rows={4} value={draft.goals}/></Field><Field label="Backstory"><textarea readOnly rows={7} value={draft.backstory}/></Field><Field label="Motivations"><textarea readOnly rows={4} value={draft.motivations}/></Field></div>
