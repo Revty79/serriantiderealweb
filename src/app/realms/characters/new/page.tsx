@@ -1,4 +1,4 @@
-import "../../../../../characters/character.css";
+import "../../../characters/character.css";
 import { LocalCharacterEditor } from "../local-character-editor";
 
 export default async function NewCharacterPage({searchParams}:{searchParams:Promise<{campaign?:string}>}) {
