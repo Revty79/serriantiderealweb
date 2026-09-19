@@ -75,3 +75,16 @@
   .race-repeat-row, .race-repeat-row--movement, .race-skill-link { grid-template-columns: 1fr; }
   .race-skill-picker { grid-template-columns: 1fr; }
 }
+
+.race-prototype-actions {
+  padding: 12px;
+  border-top: 1px solid var(--st-border);
+}
+.race-prototype-actions button {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid var(--st-danger);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--st-danger);
+}
