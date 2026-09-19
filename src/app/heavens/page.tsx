@@ -111,7 +111,7 @@ export default function HeavensPage() {
             {coreTools.map((tool) => (
               <Link
                 key={tool.title}
-                href={"/coming-soon?area=" + tool.area}
+                href={"/heavens/" + tool.area}
                 className={"group relative block min-h-[160px] overflow-hidden rounded-2xl border border-white/10 bg-slate-950/40 p-6 shadow-xl backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:border-amber-300/40 hover:bg-black/45 hover:shadow-2xl" + (tool.wide ? " text-center md:col-span-2" : "")}
               >
                 <div className="absolute -bottom-14 -right-14 h-32 w-32 rounded-full border border-purple-400/10 transition duration-300 group-hover:scale-110 group-hover:border-amber-300/20" aria-hidden="true" />
