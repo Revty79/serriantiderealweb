@@ -1,87 +1,46 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo, useState } from "react";
+import { readCampaigns } from "@/lib/local-character-store";
 import "./shops.css";
 import "../design-mode.css";
 
-export default function ShopsPage() {
-  return <main className="shops-page">
-    <header className="shops-header">
-      <Link href="/heavens" className="font-portcullion shops-logo">Serrian<br />Tide</Link>
-      <div><p>THE HEAVENS / SHOPS</p><h1 className="font-sans">Shop Builder</h1><span>Create practical Campaign storefronts, staff them with persistent NPCs, and curate Campaign-authorized offerings.</span></div>
-      <nav><Link href="/heavens">← The Heavens</Link></nav>
-    </header>
-
-    <section className="shops-scope is-god"><strong>DESIGN MODE · Campaign owner scope</strong><span>All authoring controls are visible for layout review. Nothing saves yet.</span></section>
-
-    <section className="shops-context">
-      <div><p>CAMPAIGN CONTEXT</p><h2 className="font-sans">Choose the Shop archive</h2></div>
-      <label className="shops-field"><span>Campaign</span><select><option>Design Campaign</option></select></label>
-      <button type="button">Create Shop</button>
-    </section>
-
-    <div className="shops-layout">
-      <aside className="shops-library">
-        <header>
-          <div><p>SHOP LIBRARY</p><h2>Design Campaign</h2></div>
-          <div className="shops-segmented"><button aria-pressed="true">Active</button><button>Archived</button></div>
-        </header>
-        <label className="shops-field"><span>Search Shops</span><input type="search" placeholder="Name, type, description, or location" /></label>
-        <div className="shops-index">
-          <button type="button" className="is-selected"><span><strong>New Shop Draft</strong><small>Unconfigured</small></span><span className="shops-index__meta"><em>draft</em><small>0 staff · 0 offerings</small></span></button>
-        </div>
-      </aside>
-
-      <section className="shops-editor">
-        <header className="shops-editor__header">
-          <div><p>NEW SHOP DRAFT · DESIGN CAMPAIGN</p><h2 className="font-sans">New Shop Draft</h2><span>Design mode · local only</span></div>
-          <div className="shops-editor__actions"><button disabled>Archive Shop</button><button className="is-danger" disabled>Delete Shop</button></div>
-        </header>
-
-        <section className="shops-panel">
-          <header><div><p>SHOP RECORD</p><h3>Identity, location &amp; balance</h3></div><button disabled>Save Shop</button></header>
-          <div className="shops-form-grid">
-            <label className="shops-field"><span>Shop Name</span><input /></label>
-            <label className="shops-field"><span>Type / Category</span><input placeholder="Armorer, apothecary, ferry…" /></label>
-            <label className="shops-field is-wide"><span>Description</span><textarea rows={4} /></label>
-            <label className="shops-field is-wide"><span>Location Notes</span><textarea rows={3} /></label>
-            <label className="shops-field"><span>Balance · canonical Campaign Credits</span><input type="number" min={0} step="0.01" /><small>Tracked balance once persistence exists.</small></label>
-            <label className="shops-field"><span>Storefront</span><select defaultValue="closed"><option value="closed">Closed</option><option value="open">Open</option></select><small>New and restored Shops default to closed.</small></label>
-          </div>
-        </section>
-
-        <section className="shops-panel">
-          <header><div><p>TRANSACTION POLICIES</p><h3>Approval and resale settings</h3></div><button disabled>Save Policies</button></header>
-          <div className="shops-form-grid">
-            <label className="shops-field"><span>Character Purchases</span><select><option>G.O.D. approval required</option><option>Immediate</option></select></label>
-            <label className="shops-field"><span>Sold Item Handling</span><select><option>Add to Shop stock</option><option>Remove from active play</option></select></label>
-            <label className="shops-field is-wide"><span>Changed Sale Terms</span><textarea rows={3} /></label>
-          </div>
-        </section>
-
-        <section className="shops-panel">
-          <header><div><p>SHOP STAFF</p><h3>Persistent NPC assignments</h3></div><span>0 staff</span></header>
-          <div className="shops-form-grid">
-            <label className="shops-field"><span>Find eligible NPC</span><input type="search" /></label>
-            <label className="shops-field"><span>NPC</span><select><option>Choose NPC</option></select></label>
-            <label className="shops-field"><span>Responsibility / Role</span><input placeholder="Owner, clerk, guard…" /></label>
-            <label className="shops-check"><input type="checkbox" /><span>Primary contact</span></label>
-          </div>
-        </section>
-
-        <section className="shops-panel">
-          <header><div><p>SHOP OFFERINGS</p><h3>Catalog, pricing, stock &amp; fulfillment</h3></div><span>0 listings</span></header>
-          <div className="shops-form-grid">
-            <label className="shops-field is-wide"><span>Search permitted Items</span><input type="search" /></label>
-            <label className="shops-field"><span>Canonical price</span><input type="number" step="0.01" /></label>
-            <label className="shops-field"><span>Fulfillment</span><select><option>Transfer Item into Character inventory</option><option>Record service / narrative offering</option></select></label>
-            <label className="shops-field"><span>Stock Tracking</span><select><option>Unlimited</option><option>Limited</option></select></label>
-            <label className="shops-field"><span>Limited Quantity</span><input type="number" min={0} /></label>
-            <label className="shops-field"><span>Selling Override · Credits</span><input type="number" min={0} step="0.01" /></label>
-            <label className="shops-field"><span>Buying Override · Credits</span><input type="number" min={0} step="0.01" /></label>
-            <label className="shops-field is-wide"><span>Shop-Facing Note</span><textarea rows={2} /></label>
-            <label className="shops-check"><input type="checkbox" defaultChecked /><span>Listing enabled</span></label>
-          </div>
-        </section>
-      </section>
-    </div>
-  </main>;
+const KEY="serrian-tide:prototype:shops:v1";
+type Staff={id:number;name:string;role:string;primary:boolean};
+type Offering={id:number;name:string;fulfillment:string;stock:string;quantity:number;sell:number|null;buy:number|null;note:string;enabled:boolean};
+type Shop={id:number;campaignId:number;name:string;category:string;description:string;locationNotes:string;balance:number;storefront:"closed"|"open";purchaseMode:string;soldItemHandling:string;changedSaleTerms:string;staff:Staff[];offerings:Offering[];archivedAt:string|null;archiveReason:string};
+function read():Shop[]{if(typeof window==="undefined")return[];try{const p=JSON.parse(localStorage.getItem(KEY)??"[]");return Array.isArray(p)?p:[]}catch{return[]}}
+function write(rows:Shop[]){localStorage.setItem(KEY,JSON.stringify(rows))}
+function blank(campaignId=0):Shop{return{id:0,campaignId,name:"",category:"",description:"",locationNotes:"",balance:0,storefront:"closed",purchaseMode:"god-approval-required",soldItemHandling:"add-to-shop-stock",changedSaleTerms:"",staff:[],offerings:[],archivedAt:null,archiveReason:""}}
+export default function ShopsPage(){
+ const campaigns=useMemo(()=>readCampaigns().filter(x=>!x.archivedAt),[]);
+ const [campaignId,setCampaignId]=useState(campaigns[0]?.id??0);const [status,setStatus]=useState<"active"|"archived">("active");const [version,setVersion]=useState(0);const [search,setSearch]=useState("");const [draft,setDraft]=useState<Shop>(()=>blank(campaigns[0]?.id??0));const [dirty,setDirty]=useState(false);
+ const shops=useMemo(()=>{void version;const q=search.trim().toLowerCase();return read().filter(s=>s.campaignId===campaignId&&Boolean(s.archivedAt)===(status==="archived")).filter(s=>!q||[s.name,s.category,s.description,s.locationNotes].some(v=>v.toLowerCase().includes(q))).sort((a,b)=>a.name.localeCompare(b.name))},[campaignId,status,search,version]);
+ function change(update:Partial<Shop>){setDraft(d=>({...d,...update}));setDirty(true)}
+ function open(id:number){if(dirty&&!confirm("Discard unsaved Shop changes?"))return;const row=read().find(s=>s.id===id);if(row){setDraft(row);setDirty(false)}}
+ function fresh(){if(dirty&&!confirm("Discard unsaved Shop changes?"))return;setDraft(blank(campaignId));setDirty(false)}
+ function save(){if(!draft.name.trim()||!draft.campaignId)return;const rows=read();let next:Shop;if(draft.id){const i=rows.findIndex(s=>s.id===draft.id);if(i<0)return;next={...draft};rows[i]=next}else{const id=rows.reduce((m,s)=>Math.max(m,s.id),0)+1;next={...draft,id};rows.push(next)}write(rows);setDraft(next);setDirty(false);setVersion(v=>v+1)}
+ function archive(){if(!draft.id)return;const rows=read();const i=rows.findIndex(s=>s.id===draft.id);if(i<0)return;const next={...draft,archivedAt:new Date().toISOString(),archiveReason:prompt("Archive reason (optional):")??""};rows[i]=next;write(rows);setDraft(next);setDirty(false);setVersion(v=>v+1)}
+ function restore(){if(!draft.id)return;const rows=read();const i=rows.findIndex(s=>s.id===draft.id);if(i<0)return;const next={...draft,archivedAt:null,archiveReason:""};rows[i]=next;write(rows);setDraft(next);setDirty(false);setVersion(v=>v+1)}
+ function remove(){if(!draft.id||prompt("Type "+draft.name+" to delete this local Shop:")!==draft.name)return;write(read().filter(s=>s.id!==draft.id));setDraft(blank(campaignId));setDirty(false);setVersion(v=>v+1)}
+ return <main className="shops-page">
+  <header className="shops-header"><Link href="/heavens" className="font-portcullion shops-logo">Serrian<br/>Tide</Link><div><p>THE HEAVENS / SHOPS</p><h1>Shop Builder</h1><span>Local prototype · no database</span></div><nav><Link href="/heavens">← The Heavens</Link></nav></header>
+  <section className="shops-scope is-god"><strong>Campaign owner scope</strong><span>Shop relationships are disposable browser-local prototype data.</span></section>
+  <section className="shops-context"><div><p>CAMPAIGN CONTEXT</p><h2>Choose the Shop archive</h2></div><label className="shops-field"><span>Campaign</span><select value={campaignId} onChange={e=>{setCampaignId(Number(e.target.value));setDraft(blank(Number(e.target.value)));setDirty(false)}}><option value={0}>No Campaign Selected</option>{campaigns.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label><button disabled={!campaignId} onClick={fresh}>Create Shop</button></section>
+  <div className="shops-layout">
+   <aside className="shops-library"><header><div><p>SHOP LIBRARY</p><h2>{campaigns.find(c=>c.id===campaignId)?.name??"No Campaign"}</h2></div><div className="shops-segmented"><button aria-pressed={status==="active"} onClick={()=>setStatus("active")}>Active</button><button aria-pressed={status==="archived"} onClick={()=>setStatus("archived")}>Archived</button></div></header><label className="shops-field"><span>Search Shops</span><input value={search} onChange={e=>setSearch(e.target.value)}/></label><div className="shops-index">{shops.map(s=><button key={s.id} className={draft.id===s.id?"is-selected":""} onClick={()=>open(s.id)}><span><strong>{s.name}</strong><small>{s.category}</small></span><span className="shops-index__meta"><em className={"is-"+s.storefront}>{s.archivedAt?"Archived":s.storefront}</em><small>{s.staff.length} staff · {s.offerings.length} offerings</small></span></button>)}</div>{!shops.length?<p className="shops-empty">No {status} Shops.</p>:null}</aside>
+   <section className="shops-editor">
+    <header className="shops-editor__header"><div><p>{draft.id?"SHOP-"+String(draft.id).padStart(4,"0"):"NEW SHOP DRAFT"}</p><h2>{draft.name||"Unnamed Shop"}</h2><span>{draft.archivedAt?"Archived":dirty?"Unsaved changes":draft.id?"Saved locally":"Not yet persisted"}</span></div><div className="shops-editor__actions">{draft.id?(draft.archivedAt?<button onClick={restore}>Restore Shop</button>:<button disabled={dirty} onClick={archive}>Archive Shop</button>):null}{draft.id?<button className="is-danger" disabled={dirty} onClick={remove}>Delete Shop</button>:null}</div></header>
+    <section className="shops-panel"><header><div><p>SHOP RECORD</p><h3>Identity, location & balance</h3></div><button disabled={Boolean(draft.archivedAt)} onClick={save}>Save Shop</button></header><div className="shops-form-grid">
+      <label className="shops-field"><span>Shop Name</span><input value={draft.name} onChange={e=>change({name:e.target.value})}/></label><label className="shops-field"><span>Type / Category</span><input value={draft.category} onChange={e=>change({category:e.target.value})}/></label>
+      <label className="shops-field is-wide"><span>Description</span><textarea rows={4} value={draft.description} onChange={e=>change({description:e.target.value})}/></label><label className="shops-field is-wide"><span>Location Notes</span><textarea rows={3} value={draft.locationNotes} onChange={e=>change({locationNotes:e.target.value})}/></label>
+      <label className="shops-field"><span>Balance · canonical Campaign Credits</span><input type="number" value={draft.balance} onChange={e=>change({balance:Number(e.target.value)})}/></label><label className="shops-field"><span>Storefront</span><select value={draft.storefront} onChange={e=>change({storefront:e.target.value as Shop["storefront"]})}><option value="closed">Closed</option><option value="open">Open</option></select></label>
+    </div></section>
+    <section className="shops-panel"><header><div><p>TRANSACTION POLICIES</p><h3>Approval and resale settings</h3></div></header><div className="shops-form-grid"><label className="shops-field"><span>Character Purchases</span><select value={draft.purchaseMode} onChange={e=>change({purchaseMode:e.target.value})}><option value="god-approval-required">G.O.D. approval required</option><option value="immediate">Immediate</option></select></label><label className="shops-field"><span>Sold Item Handling</span><select value={draft.soldItemHandling} onChange={e=>change({soldItemHandling:e.target.value})}><option value="add-to-shop-stock">Add to Shop stock</option><option value="remove-from-active-play">Remove from active play</option></select></label><label className="shops-field is-wide"><span>Changed Sale Terms</span><textarea value={draft.changedSaleTerms} onChange={e=>change({changedSaleTerms:e.target.value})}/></label></div></section>
+    <section className="shops-panel"><header><div><p>SHOP STAFF</p><h3>Persistent NPC assignments</h3></div><button onClick={()=>change({staff:[...draft.staff,{id:Date.now(),name:"",role:"",primary:draft.staff.length===0}]})}>Add Staff</button></header><div className="shops-offerings">{draft.staff.map((s,i)=><article key={s.id}><div className="shops-form-grid"><label className="shops-field"><span>NPC</span><input value={s.name} onChange={e=>change({staff:draft.staff.map((x,j)=>j===i?{...x,name:e.target.value}:x)})}/></label><label className="shops-field"><span>Responsibility / Role</span><input value={s.role} onChange={e=>change({staff:draft.staff.map((x,j)=>j===i?{...x,role:e.target.value}:x)})}/></label><label className="shops-check"><input type="checkbox" checked={s.primary} onChange={e=>change({staff:draft.staff.map((x,j)=>j===i?{...x,primary:e.target.checked}:x)})}/><span>Primary contact</span></label></div><div className="shops-row-actions"><button className="is-danger" onClick={()=>change({staff:draft.staff.filter((_,j)=>j!==i)})}>Remove</button></div></article>)}</div></section>
+    <section className="shops-panel"><header><div><p>SHOP OFFERINGS</p><h3>Pricing, stock & fulfillment</h3></div><button onClick={()=>change({offerings:[...draft.offerings,{id:Date.now(),name:"",fulfillment:"inventory-transfer",stock:"unlimited",quantity:0,sell:null,buy:null,note:"",enabled:true}]})}>Add Offering</button></header><div className="shops-offerings">{draft.offerings.map((o,i)=><article key={o.id}><div className="shops-form-grid"><label className="shops-field"><span>Item</span><input value={o.name} onChange={e=>change({offerings:draft.offerings.map((x,j)=>j===i?{...x,name:e.target.value}:x)})}/></label><label className="shops-field"><span>Fulfillment</span><select value={o.fulfillment} onChange={e=>change({offerings:draft.offerings.map((x,j)=>j===i?{...x,fulfillment:e.target.value}:x)})}><option value="inventory-transfer">Transfer Item into Character inventory</option><option value="service-narrative">Record service / narrative offering</option></select></label><label className="shops-field"><span>Stock Tracking</span><select value={o.stock} onChange={e=>change({offerings:draft.offerings.map((x,j)=>j===i?{...x,stock:e.target.value}:x)})}><option value="unlimited">Unlimited</option><option value="limited">Limited</option></select></label><label className="shops-field"><span>Limited Quantity</span><input type="number" value={o.quantity} onChange={e=>change({offerings:draft.offerings.map((x,j)=>j===i?{...x,quantity:Number(e.target.value)}:x)})}/></label><label className="shops-field"><span>Selling Override · Credits</span><input type="number" value={o.sell??""} onChange={e=>change({offerings:draft.offerings.map((x,j)=>j===i?{...x,sell:e.target.value===""?null:Number(e.target.value)}:x)})}/></label><label className="shops-field"><span>Buying Override · Credits</span><input type="number" value={o.buy??""} onChange={e=>change({offerings:draft.offerings.map((x,j)=>j===i?{...x,buy:e.target.value===""?null:Number(e.target.value)}:x)})}/></label><label className="shops-field is-wide"><span>Shop-Facing Note</span><textarea value={o.note} onChange={e=>change({offerings:draft.offerings.map((x,j)=>j===i?{...x,note:e.target.value}:x)})}/></label><label className="shops-check"><input type="checkbox" checked={o.enabled} onChange={e=>change({offerings:draft.offerings.map((x,j)=>j===i?{...x,enabled:e.target.checked}:x)})}/><span>Listing enabled</span></label></div><div className="shops-row-actions"><button className="is-danger" onClick={()=>change({offerings:draft.offerings.filter((_,j)=>j!==i)})}>Remove</button></div></article>)}</div></section>
+   </section>
+  </div>
+ </main>;
 }
