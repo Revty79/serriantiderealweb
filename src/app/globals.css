@@ -46,6 +46,13 @@
   --st-danger: #f18b98;
   --st-success: #6bd49f;
   --st-focus: #fde68a;
+  --st-input: rgba(4, 3, 12, 0.78);
+  --st-primary-soft: rgba(156, 99, 217, 0.15);
+  --st-primary-border: rgba(156, 99, 217, 0.42);
+  --st-secondary-soft: rgba(229, 189, 90, 0.13);
+  --st-secondary-border: rgba(229, 189, 90, 0.42);
+  --st-brand-gradient: linear-gradient(100deg, var(--st-primary), var(--st-secondary) 52%, var(--st-primary));
+  --st-shadow: rgba(0, 0, 0, 0.38);
 }
 
 * {
