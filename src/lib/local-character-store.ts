@@ -5,6 +5,7 @@ export const RACE_STORAGE_KEY = "serrian-tide:prototype:races:v1";
 export type LocalCharacter = {
   id: number;
   campaignId: number;
+  playerUserId: string;
   name: string;
   raceId: number | null;
   age: number | null;
@@ -85,7 +86,7 @@ export function readRaces(): LocalRaceSummary[] {
 export function newCharacter(campaignId:number): LocalCharacter {
   const now=new Date().toISOString();
   return {
-    id:0,campaignId,name:"",raceId:null,age:null,sex:"",heightFeet:null,heightInches:null,weight:null,
+    id:0,campaignId,playerUserId:"prototype-admin",name:"",raceId:null,age:null,sex:"",heightFeet:null,heightInches:null,weight:null,
     skinColor:"",eyeColor:"",hairColor:"",deity:"",definingMarks:"",
     personality:"",goals:"",secrets:"",backstory:"",motivations:"",
     fatePoints:null,
