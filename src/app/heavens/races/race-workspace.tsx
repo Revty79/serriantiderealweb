@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { readSkills } from "@/lib/local-skill-store";
 
 const RACE_SIZE_OPTIONS = [
   "Minuscule",
@@ -98,13 +99,6 @@ const TABS: Array<{ id: Tab; label: string }> = [
 const STANDARD_ATTRIBUTES = ["STR", "DEX", "CON", "INT", "WIS", "CHR"];
 const STORAGE_KEY = "serrian-tide:prototype:races:v1";
 
-const FALLBACK_SKILLS: RaceSkillCandidate[] = [
-  { id: 900001, name: "Melee Weapons", classification: "standard", tier: 1 },
-  { id: 900002, name: "Ranged Weapons", classification: "standard", tier: 1 },
-  { id: 900003, name: "Hand to Hand Combat", classification: "standard", tier: 1 },
-  { id: 900004, name: "Spellcraft", classification: "standard", tier: 1 },
-  { id: 900005, name: "Sample Racial Ability", classification: "special ability", tier: null },
-];
 
 function newRaceDraft(): RaceDraft {
   return {
@@ -547,7 +541,7 @@ function Skills({ draft, onChange }: { draft: RaceDraft; onChange: (draft: RaceD
   const [selectedId, setSelectedId] = useState("");
   const [linkType, setLinkType] = useState("Skill");
 
-  const candidates = FALLBACK_SKILLS.filter((candidate) => {
+  const candidates = readSkills().filter((skill) => !skill.archivedAt).map((skill) => ({ id: skill.id, name: skill.name, classification: skill.classification, tier: skill.tier })).filter((candidate) => {
     const query = search.trim().toLocaleLowerCase("en-US");
     return (!query || candidate.name.toLocaleLowerCase("en-US").includes(query))
       && (!classification || candidate.classification === classification);
