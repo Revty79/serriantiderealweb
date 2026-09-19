@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { readSkills } from "@/lib/local-skill-store";
+import { readItems } from "@/lib/local-item-store";
 import {
   newCharacter,
   readCampaigns,
@@ -24,12 +25,6 @@ const TABS = [
 
 type Tab=(typeof TABS)[number][0];
 const ATTRIBUTES=[["STR","Strength"],["DEX","Dexterity"],["CON","Constitution"],["INT","Intelligence"],["WIS","Wisdom"],["CHR","Charisma"]] as const;
-const SAMPLE_ITEMS=[
-  {id:1,name:"Sample Weapon",category:"Weapon",unitCost:100},
-  {id:2,name:"Sample Armor",category:"Armor",unitCost:150},
-  {id:3,name:"Sample Inventory Item",category:"Inventory",unitCost:10},
-];
-
 function Field({label,children,wide=false}:{label:string;children:React.ReactNode;wide?:boolean}) {
   return <label className={wide?"character-field character-field--wide":"character-field"}><span>{label}</span>{children}</label>;
 }
@@ -55,6 +50,21 @@ export function LocalCharacterEditor({characterId,campaignId,playerUserId}:{char
   const races=useMemo(()=>readRaces().filter((row)=>!row.archivedAt),[]);
   const campaign=campaigns.find((row)=>row.id===draft.campaignId) ?? null;
   const selectedRace=races.find((row)=>row.id===draft.raceId) ?? null;
+  const localCatalog = useMemo(() => {
+    const equipment = readItems("equipment").filter((item) => !item.archivedAt);
+    const inventory = readItems("inventory").filter((item) => !item.archivedAt);
+    const combined = [
+      ...equipment.map((item) => ({ ...item, catalogKey: "equipment:" + item.id })),
+      ...inventory.map((item) => ({ ...item, catalogKey: "inventory:" + item.id })),
+    ];
+    const explicit = campaign?.inventoryItemKeys ?? [];
+    const tagKeys = campaign?.inventoryTagKeys ?? [];
+    if (!explicit.length && !tagKeys.length) return combined;
+    return combined.filter((item) => {
+      if (explicit.includes(item.catalogKey)) return true;
+      return item.tags.some((tag) => tagKeys.includes(item.scope + ":" + tag.group + ":" + tag.tag));
+    });
+  }, [campaign]);
 
   function change(update:Partial<LocalCharacter>) { setDraft(current=>({...current,...update})); setDirty(true); setFeedback(""); }
   function save() {
@@ -145,8 +155,8 @@ export function LocalCharacterEditor({characterId,campaignId,playerUserId}:{char
 
         {tab==="equipment"?<div className="character-section">
           <SectionHeading eyebrow="CAMPAIGN-AUTHORIZED CATALOG" title="Starting Equipment Store" detail={(campaign?.startingCreditAmount??0)-totalCost+" Credits remaining"} />
-          <p className="character-notice">Equipment will read the real local Equipment/Inventory catalogs after those workspaces are converted. These sample rows keep the actual purchase/quantity workflow testable now.</p>
-          <div className="character-equipment-list">{SAMPLE_ITEMS.map(item=>{const owned=draft.items.find(row=>row.id===item.id);const qty=owned?.quantity??0;return <article key={item.id} className={qty>0?"is-owned":""}><div className="character-equipment-list__identity"><p>LOCAL-{item.id} · {item.category}</p><h3>{item.name}</h3><span>{item.category}</span></div><div className="character-equipment-list__purchase"><div><span>Cost</span><strong>{item.unitCost} Credits</strong><small>per item</small></div><label><span>Owned</span><input type="number" min={0} value={qty} onChange={e=>{const quantity=Math.max(0,Number(e.target.value));change({items:quantity===0?draft.items.filter(r=>r.id!==item.id):[...draft.items.filter(r=>r.id!==item.id),{...item,quantity}]})}}/></label><button onClick={()=>change({items:[...draft.items.filter(r=>r.id!==item.id),{...item,quantity:qty+1}]})}>Buy One</button></div></article>})}</div>
+          <p className="character-notice">This store reads the locally authored Equipment and Inventory catalogs and applies the selected Campaign access rules.</p>
+          <div className="character-equipment-list">{localCatalog.map(item=>{const key="catalogKey" in item?item.catalogKey:(item.scope+":"+item.id);const owned=draft.items.find(row=>row.catalogKey===key||(!row.catalogKey&&row.id===item.id));const qty=owned?.quantity??0;const unitCost=item.credits??0;return <article key={key} className={qty>0?"is-owned":""}><div className="character-equipment-list__identity"><p>{item.canonicalId||key} · {item.recordType}</p><h3>{item.name}</h3><span>{item.category}{item.equipmentGroup?" · "+item.equipmentGroup:""}</span></div><div className="character-equipment-list__purchase"><div><span>Cost</span><strong>{unitCost} Credits</strong><small>{item.priceBasis}</small></div><label><span>Owned</span><input type="number" min={0} value={qty} onChange={e=>{const quantity=Math.max(0,Number(e.target.value));const row={id:item.id,catalogKey:key,name:item.name,category:item.category,quantity,unitCost};change({items:quantity===0?draft.items.filter(r=>(r.catalogKey||String(r.id))!==key):[...draft.items.filter(r=>(r.catalogKey||String(r.id))!==key),row]})}}/></label><button onClick={()=>{const row={id:item.id,catalogKey:key,name:item.name,category:item.category,quantity:qty+1,unitCost};change({items:[...draft.items.filter(r=>(r.catalogKey||String(r.id))!==key),row]})}}>Buy One</button></div></article>})}{!localCatalog.length?<p className="character-notice">No Campaign-authorized local Items are available yet.</p>:null}</div>
         </div>:null}
 
         {tab==="god"?<div className="character-section">
