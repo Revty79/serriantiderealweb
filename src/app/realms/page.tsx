@@ -1,4 +1,5 @@
 import Link from "next/link";
+import "./realms.css";
 
 const actions = [
   { title: "TABLETOP CONSOLE", subtitle: "Live Session Workspace", description: "Open current table state, requests, sources, Rolls, and recent history." },
@@ -10,50 +11,62 @@ const actions = [
 
 export default function RealmsPage() {
   return (
-    <main className="portal-page">
-      <div className="portal-shell">
-        <header className="split-hero">
-          <Link href="/dashboard" className="split-brand">Serrian Tide</Link>
+    <main className="realms-page">
+      <div className="realms-shell">
+        <header className="realms-header">
+          <Link href="/dashboard" className="font-portcullion realms-logo">Serrian<br />Tide</Link>
           <div>
-            <p className="portal-eyebrow">Player Portal</p>
+            <p>PLAYER PORTAL</p>
             <h1 className="font-evanescent">The Realms</h1>
-            <p>Welcome, Adventurer</p>
+            <span>Welcome, Adventurer</span>
           </div>
         </header>
 
-        <section className="portal-panel">
-          <div className="portal-section-heading portal-section-heading--split">
+        <section className="realms-control">
+          <div className="realms-section-heading">
             <div>
-              <p className="portal-eyebrow">Adventuring Context</p>
+              <p>ADVENTURING CONTEXT</p>
               <h2>Your Realm</h2>
             </div>
-            <p>Select the Campaign and Character whose story you want to continue.</p>
+            <span>Select the Campaign and Character whose story you want to continue.</span>
           </div>
 
-          <div className="context-grid context-grid--two">
-            <label>Campaign<select disabled><option>No Campaign Memberships</option></select></label>
-            <label>Character<select disabled><option>Select a Campaign First</option></select></label>
+          <div className="realms-control-grid">
+            <label>
+              <span>Campaign</span>
+              <select disabled>
+                <option>No Campaign Memberships</option>
+              </select>
+            </label>
+            <label>
+              <span>Character</span>
+              <select disabled>
+                <option>Select a Campaign First</option>
+              </select>
+            </label>
           </div>
 
-          <div className="realm-buttons">
-            <button disabled>Open Character Editor</button>
-            <button disabled>Random Character</button>
-            <span>Character tools will activate after the Character system is connected.</span>
+          <div className="realms-character-create">
+            <div className="realms-character-create__buttons">
+              <button type="button" disabled>Open Character Editor</button>
+              <button type="button" disabled>Random Character</button>
+            </div>
+            <span>Select a Character assigned to you, then open its editor or let the generator build an unfinished draft.</span>
           </div>
         </section>
 
-        <section className="portal-panel">
-          <div className="portal-section-heading portal-section-heading--split">
+        <section className="realms-actions">
+          <div className="realms-section-heading">
             <div>
-              <p className="portal-eyebrow">Character Actions</p>
+              <p>CHARACTER ACTIONS</p>
               <h2>Your Character</h2>
             </div>
-            <p>Choose a Character above.</p>
+            <span>Choose a Character above.</span>
           </div>
 
-          <div className="realm-action-grid">
+          <div className="realms-action-grid">
             {actions.map((action) => (
-              <article key={action.title} className="realm-action-card is-disabled">
+              <article key={action.title} className="realms-action-card is-disabled">
                 <span>{action.subtitle}</span>
                 <h3>{action.title}</h3>
                 <p>{action.description}</p>
@@ -63,9 +76,9 @@ export default function RealmsPage() {
           </div>
         </section>
 
-        <footer className="portal-footer">
+        <footer className="realms-footer">
           <Link href="/dashboard">← Return to Paths</Link>
-          <span className="footer-brand">Serrian Tide</span>
+          <span className="font-portcullion">Serrian Tide</span>
         </footer>
       </div>
     </main>
